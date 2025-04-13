@@ -1,4 +1,4 @@
-# React + Vite
+# This is a Social Media App
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
