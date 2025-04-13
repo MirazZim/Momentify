@@ -1,6 +1,6 @@
 # This is a Social Media App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Just Created UserPage.... Many more to go
 
 Currently, two official plugins are available:
 
