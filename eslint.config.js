@@ -10,6 +10,7 @@ export default [
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      node: true,
       parserOptions: {
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
