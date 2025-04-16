@@ -3,7 +3,7 @@ import { BsThreeDots } from "react-icons/bs";
 import Actions from "./Actions";
 import { useState } from "react";
 
-const Comment = () => {
+const Comment = ({comments}) => {
 
     const [liked, setLiked] = useState(false);
 	return (
@@ -24,14 +24,10 @@ const Comment = () => {
                         </Flex>
 					</Flex>
 					<Text>
-                        Mama Mojai asos dekhi !
+                        {comments}
                     </Text>
                     <Actions liked={liked} setLiked={setLiked} />
                     <Flex gap={3} alignItems={"center"}>
-                            <Text color={"gray.light"} fontSize={"sm"}>
-                            20 replies
-                            </Text>
-                            <Box w={1} h={1} bg={"gray.light"} borderRadius={6}> </Box>
                             <Text color={"gray.light"} fontSize={"sm"}>
                                {/* Setted a state here if any user like it increaments 1 or else 0 */}
                                {(liked ? 1 : 0)} likes

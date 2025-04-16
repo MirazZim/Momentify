@@ -55,6 +55,7 @@ const PostPage = () => {
       </Flex>
       <Divider my={4} />
 
+
       <Flex justifyContent={"space-between"}>
         <Flex gap={2} alignItems={"center"}>
           <Text fontSize={"2xl"}>👋</Text>
@@ -65,7 +66,9 @@ const PostPage = () => {
 
       <Divider my={4} />
 
-      <Comment />
+      <Comment comments="Looks really good" />
+      <Comment comments="MashAllah" />
+      <Comment comments="Awesome" />
 
 
 
