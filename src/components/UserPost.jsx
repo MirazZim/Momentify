@@ -78,10 +78,16 @@ const UserPost = ({likes, replies, postImg, postTitle}) => {
                     {/* Post Text */}
                     <Text fontSize={"sm"}>{postTitle}</Text>
 
-                    {/* Post Image */}
-                    <Box borderRadius={6} overflow={"hidden"} border={"1px solid"} borderColor={"gray.light"}>
-                        <Image src={postImg} w={"full"} />
-                    </Box>
+                    {postImg && (
+						<Box
+							borderRadius={6}
+							overflow={"hidden"}
+							border={"1px solid"}
+							borderColor={"gray.light"}
+						>
+							<Image src={postImg} w={"full"} />
+						</Box>
+					)}
 
                     <Flex gap={3} my={1}>
 						<Actions liked={liked} setLiked={setLiked} />

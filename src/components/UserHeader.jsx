@@ -9,6 +9,7 @@ const UserHeader = () => {
         const currentURL = window.location.href;
         console.log("Copying URL:", currentURL);  // Debugging log
 
+        /* function of Copying in clipBoard */
         navigator.clipboard.writeText(currentURL).then(() => {
             toast({
                 title: "Success.",
@@ -39,7 +40,10 @@ const UserHeader = () => {
                 </Box>
 
                 <Box>
-                    <Avatar name="Mark Zuck" src="zuck-avatar.png" size="xl" />
+                    <Avatar name="Mark Zuck" src="zuck-avatar.png" size={{
+                        base: "md",
+                        md: "xl",
+                    }} />
                 </Box>
             </Flex>
 
