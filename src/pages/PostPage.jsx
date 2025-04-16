@@ -2,6 +2,7 @@ import { Avatar, Box, Button, Divider, Flex, Image, Text } from "@chakra-ui/reac
 import { BsThreeDots } from "react-icons/bs"
 import Actions from "../components/Actions"
 import { useState } from "react";
+import Comment from "../components/Comment";
 
 
 const PostPage = () => {
@@ -39,18 +40,32 @@ const PostPage = () => {
 
 
       <Flex gap={3} my={3}>
-				<Actions liked={liked} setLiked={setLiked} />
-			</Flex>
+        <Actions liked={liked} setLiked={setLiked} />
+      </Flex>
 
+      <Flex gap={3} alignItems={"center"}>
+        <Text color={"gray.light"} fontSize={"sm"}>
+         20 replies
+        </Text>
+        <Box w={1} h={1} bg={"gray.light"} borderRadius={6}> </Box>
+        <Text color={"gray.light"} fontSize={"sm"}>
+           {/* Setted a state here if any user like it increaments 1 or else 0 */}
+           {200 + (liked ? 1 : 0)} likes
+        </Text>
+      </Flex>
       <Divider my={4} />
 
       <Flex justifyContent={"space-between"}>
-				<Flex gap={2} alignItems={"center"}>
-					<Text fontSize={"2xl"}>👋</Text>
-					<Text color={"gray.light"}>Get the app to like, reply and post.</Text>
-				</Flex>
-				<Button>Get</Button>
-			</Flex>
+        <Flex gap={2} alignItems={"center"}>
+          <Text fontSize={"2xl"}>👋</Text>
+          <Text color={"gray.light"}>Get the app to like, reply and post.</Text>
+        </Flex>
+        <Button>Get</Button>
+      </Flex>
+
+      <Divider my={4} />
+
+      <Comment />
 
 
 
