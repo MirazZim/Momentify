@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
+import generateTokenAndSetCookies from "../utils/helpers/generateTokenAndSetCookies.js";
 
 
 
@@ -37,6 +38,9 @@ const signupUser = async (req, res) => {
         
         //If the user is successfully saved to the database, this block is executed. The server responds with a 201 status code
         if (newUser) {
+
+            generateTokenAndSetCookies(newUser._id, res);
+
             return res.status(201).json({
                 _id: newUser._id,
                 name: newUser.name,
