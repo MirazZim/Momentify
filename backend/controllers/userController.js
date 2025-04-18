@@ -57,4 +57,38 @@ const signupUser = async (req, res) => {
     }
 };
 
-export { signupUser };
+const loginUser = async (req, res) => {
+    try {
+         //Extracting Data from req.body
+         const { username, password } = req.body;
+
+          //check if user already exists
+        const user = await User.findOne({ username })
+
+        //If user not found
+        if (!user) {
+            return res.status(400).json({ message: "User not found" });
+        }
+
+        // Compare the provided password with the hashed password in the database
+        const isPasswordCorrect = await bcrypt.compare(password, user?.password || "");
+        if (!user ||!isPasswordCorrect) {
+            return res.status(400).json({ message: "Invalid UserName or Password" });
+        }
+
+        // Generate a token and set cookies for the user
+        generateTokenAndSetCookies(user._id, res);
+
+        return res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            username: user.username,
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        console.log("error in loginUser", error);
+    }
+}
+
+export { signupUser, loginUser };
