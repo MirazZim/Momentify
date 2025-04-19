@@ -106,4 +106,6 @@ const logoutUser = async (req, res) => {
     }
 }
 
-export { signupUser, loginUser, logoutUser };
+
+
+export { signupUser, loginUser, logoutUser, followUnfollowUser };
