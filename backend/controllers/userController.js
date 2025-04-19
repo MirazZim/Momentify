@@ -4,6 +4,22 @@ import generateTokenAndSetCookies from "../utils/helpers/generateTokenAndSetCook
 
 
 
+const getUserProfile = async (req, res) => {
+    // We will fetch user profile either with username or userId
+    // query is either username or userId
+    const { username } = req.params; 
+
+    try {
+        // Find the user by username and exclude password and updatedAt fields
+        const user = await User.findOne({ username }).select("-password").select("-updatedAt");
+        if (!user) return res.status(404).json({ error: "User not found" });
+        res.status(200).json(user);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+        console.log("Error in getUserProfile: ", err.message);
+    }
+};
+
 const signupUser = async (req, res) => {
     try {
 
@@ -160,7 +176,7 @@ const updateUser = async (req, res) => {
         //3. Find the user in the database by ID
         let user = await User.findById(userId);
         if (!user) return res.status(400).json({ message: "User Not Found" })
-            
+
         //4.you can not update others profile only yours can
         if (req.params.id !== userId.toString())
             return res.status(400).json({ error: "You cannot update other user's profile" });
@@ -192,4 +208,4 @@ const updateUser = async (req, res) => {
 
 
 
-export { signupUser, loginUser, logoutUser, followUnfollowUser, updateUser };
+export { signupUser, loginUser, logoutUser, followUnfollowUser, updateUser, getUserProfile };
