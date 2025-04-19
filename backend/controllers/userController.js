@@ -118,7 +118,7 @@ const followUnfollowUser = async (req, res) => {
         const currentUser = await User.findById(req.user._id);
 
         // Check if user is trying to follow/unfollow themselves
-        if (id === req.user._id) return res.status(400).json({ message: "You cannot follow/unfollow yourself" });
+        if (id === req.user._id.toString()) return res.status(400).json({ message: "You cannot follow/unfollow yourself" });
 
         // If either user is not found in the database, return an error
         if (!userToModify || !currentUser) return res.status(400).json({ error: "User not found" });
@@ -150,29 +150,36 @@ const followUnfollowUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
 
-
+    // 1.Destructure fields from the request body
     const { name, email, username, password, profilePic, bio } = req.body;
 
+    //2. Get the current user's ID from the authenticated request
     const userId = req.user._id;
 
     try {
-
+        //3. Find the user in the database by ID
         let user = await User.findById(userId);
         if (!user) return res.status(400).json({ message: "User Not Found" })
+            
+        //4.you can not update others profile only yours can
+        if (req.params.id !== userId.toString())
+            return res.status(400).json({ error: "You cannot update other user's profile" });
 
+        //5. If a new password is provided, hash it securely
         if (password) {
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
             user.password = hashedPassword;
         }
 
+        //6. Update user's profile fields if provided, otherwise keep existing values
         user.name = name || user.name;
         user.email = email || user.email;
         user.username = username || user.username;
         user.profilePic = profilePic || user.profilePic;
         user.bio = bio || user.bio;
 
-
+        //7. Save the updated user document back to the database
         user = await user.save();
         res.status(200).json({ message: "Profile updated Successfully", user });
 
