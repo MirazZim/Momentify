@@ -89,4 +89,43 @@ const deletePost = async (req, res) => {
     }
 }
 
-export { createPost, getPost, deletePost };
+const likeUnlikePost = async (req, res) => {
+    try {
+        //1. Get the post id from the request parameters
+        const { id: postId } = req.params;
+
+        //2. Get the user id from the request user object
+        const userId = req.user._id;
+
+        //3. Find the post by the given id
+        const post = await Post.findById(postId);
+
+        //3.1 If no post is found, send a 404 error
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        //4. Check if the user has already liked the post
+        const userLikedPost = post.likes.includes(userId);
+
+        //4.1 If the user has already liked the post, unlike it
+        if (userLikedPost) {
+            //4.1.1 Update the post document by removing the user id from the likes array
+            await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+            //4.1.2 Send a 200 response with a message
+            res.status(200).json({ message: "Post unliked successfully" });
+        } else {
+            //4.2 If the user has not liked the post, like it
+            //4.2.1 Add the user id to the likes array of the post document
+            post.likes.push(userId);
+            //4.2.2 Save the updated post document
+            await post.save();
+            //4.2.3 Send a 200 response with a message
+            res.status(200).json({ message: "Post liked successfully" });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+}
+
+export { createPost, getPost, deletePost, likeUnlikePost };
