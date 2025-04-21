@@ -128,4 +128,45 @@ const likeUnlikePost = async (req, res) => {
     }
 }
 
-export { createPost, getPost, deletePost, likeUnlikePost };
+const replyToPost = async (req, res) => {
+    try {
+        //This gets the "text" from the request that the user sent.
+        const { text } = req.body;
+
+        //This gets the ID of the post from the URL that the user wants to reply to.
+        const postId = req.params.id;
+
+        //This gets the ID of the user from the request object.
+        const userId = req.user._id;
+
+        //This gets the profile picture of the user from the request object.
+        const userProfilePic = req.user.profilePic;
+
+        //This gets the username of the user from the request object.
+        const username = req.user.username;
+
+        if (!text) {
+            return res.status(400).json({ error: "Text field is required" });
+        }
+
+
+        //This checks if the "text" is missing. If it is, it sends an error message saying "Text is required"
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ error: "Post not found" });
+        }
+
+        const reply = { userId, text, userProfilePic, username };
+
+        //This creates a new reply object that includes the user's ID, text, profile picture, and username.
+        post.replies.push(reply);
+        await post.save();
+
+        res.status(200).json(reply);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        console.log("error in replyToPost", error);
+    }
+}
+
+export { createPost, getPost, deletePost, likeUnlikePost, replyToPost };
