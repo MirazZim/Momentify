@@ -18,9 +18,12 @@ import {
 } from '@chakra-ui/react'
 import { useState } from 'react'
 import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
+import { useSetRecoilState } from 'recoil'
+import authScreenAtom from '../../atoms/authAtom.js'
 
-const Login = () => {
+const SignUp = () => {
     const [showPassword, setShowPassword] = useState(false)
+    const setAuthScreen = useSetRecoilState(authScreenAtom);
 
     return (
         <Flex
@@ -31,7 +34,7 @@ const Login = () => {
             <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
                 <Stack align={'center'}>
                     <Heading fontSize={'4xl'} textAlign={'center'}>
-                        Login
+                        Sign up
                     </Heading>
                     
                 </Stack>
@@ -39,14 +42,22 @@ const Login = () => {
                     rounded={'lg'}
                     bg={useColorModeValue('white', 'gray.dark')}
                     boxShadow={'lg'}
-                    p={8}
-                    w={{
-                        base: "full",
-                        sm: '400px',
-                        md: '480px'
-                    }}
-                    >
+                    p={8}>
                     <Stack spacing={4}>
+                        <HStack>
+                            <Box>
+                                <FormControl isRequired>
+                                    <FormLabel>Full Name</FormLabel>
+                                    <Input type="text" />
+                                </FormControl>
+                            </Box>
+                            <Box>
+                                <FormControl isRequired >
+                                    <FormLabel>Username</FormLabel>
+                                    <Input type="text" />
+                                </FormControl>
+                            </Box>
+                        </HStack>
                         <FormControl isRequired>
                             <FormLabel>Email address</FormLabel>
                             <Input type="email" />
@@ -73,12 +84,12 @@ const Login = () => {
                                 _hover={{
                                     bg: useColorModeValue('gray.700', 'gray.800')
                                 }}>
-                                Login
+                                Sign up
                             </Button>
                         </Stack>
                         <Stack pt={6}>
                             <Text align={'center'}>
-                                Dont have an account? <Link to="/signup" color={'blue.400'}>Sign Up</Link>
+                                Already a user? <Link onClick={() => {setAuthScreen("login")}} color={'blue.400'}>Login</Link>
                             </Text>
                         </Stack>
                     </Stack>
@@ -88,4 +99,4 @@ const Login = () => {
     )
 }
 
-export default Login
+export default SignUp
