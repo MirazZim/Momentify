@@ -169,4 +169,32 @@ const replyToPost = async (req, res) => {
     }
 }
 
-export { createPost, getPost, deletePost, likeUnlikePost, replyToPost };
+const getFeedPosts = async (req, res) => {
+    try {
+         // The userId is retrieved from the authenticated request (req.user._id). 
+        const userId = req.user._id;
+
+        // We find the user in the database using the userId.
+		const user = await User.findById(userId);
+
+		if (!user) {
+			return res.status(404).json({ error: "User not found" });
+		}
+
+        // Get the list of users that the current user is following. This is an array of user IDs.
+		const following = user.following;
+
+
+         // Query the Post collection to find all posts made by the users that the current user is following.
+        // This will return posts where the 'postedBy' field matches any of the IDs in the 'following' array.
+        // The posts are sorted by the 'createdAt' field in descending order (newest posts first).
+		const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({ createdAt: -1 });
+
+		res.status(200).json(feedPosts);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+        console.log("error in getFeedPosts", error);
+    }
+}
+
+export { createPost, getPost, deletePost, likeUnlikePost, replyToPost, getFeedPosts };
