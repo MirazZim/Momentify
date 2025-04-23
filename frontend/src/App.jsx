@@ -8,12 +8,14 @@ import HomePage from "./pages/HomePage"
 import AuthPage from "./pages/AuthPage"
 import userAtom from "../atoms/userAtom.js"
 import { useRecoilValue } from "recoil"
+import LogoutButton from "./components/LogoutButton.jsx"
 
 
 
 function App() {
 
   const user = useRecoilValue(userAtom);
+  console.log("Currently Logged in ",user)
 
  
 
@@ -31,6 +33,8 @@ function App() {
           <Route path="/:username" element={<UserPage />} />
           <Route path="/:username/post/:pid" element={<PostPage />} />
          </Routes>
+
+         {user && <LogoutButton />}
       </Container>
       
     </>

@@ -22,6 +22,7 @@ import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons'
 import { useSetRecoilState } from 'recoil'
 import authScreenAtom from '../../atoms/authAtom.js'
 import userAtom from '../../atoms/userAtom.js'
+import useShowToast from '../hooks/useShowToast.js'
 
 const SignUp = () => {
     const [showPassword, setShowPassword] = useState(false)
@@ -34,7 +35,7 @@ const SignUp = () => {
         password: "",
     });
 
-    const toast = useToast();  // Corrected hook to `toast`
+    const showToast = useShowToast();
 
     const setUser = useSetRecoilState(userAtom);
 
@@ -54,43 +55,25 @@ const SignUp = () => {
             const data = await res.json();
 
             if (data.message) {
-                toast({
-                    title: "Error",
-                    description: data.message,
-                    status: "error",
-                    duration: 5000,
-                    isClosable: true,
-                });
+                showToast("Error", data.message, "error");
                 return;
             }
 
             // Assuming you want to display a success message as well
-            toast({
-                title: "Sign Up Successful",
-                description: "You have successfully signed up.",
-                status: "success",
-                duration: 5000,
-                isClosable: true,
-            });
+            showToast("Sign Up Successful", "You have successfully signed up.", "success");
 
             localStorage.setItem("user-threads", JSON.stringify(data));
             setUser(data);
 			
 
         } catch (error) {
-            toast({
-                title: "Error",
-                description: "An unexpected error occurred.",
-                status: "error",
-                duration: 5000,
-                isClosable: true,
-            });
-            console.log("error in handleSignup", error)
+           showToast("Error", "An unexpected error occurred.", "error");
+            console.log("error in handleSignup", error) 
         }
     }
 
 
-    return (
+    return ( 
         <Flex
 
             align={'center'}
