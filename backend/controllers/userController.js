@@ -1,7 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookies from "../utils/helpers/generateTokenAndSetCookies.js";
-
+import { v2 as cloudinary } from "cloudinary";
 
 
 const getUserProfile = async (req, res) => {
@@ -100,6 +100,8 @@ const loginUser = async (req, res) => {
             name: user.name,
             email: user.email,
             username: user.username,
+            profilePic: user.profilePic,
+            bio: user.bio,
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -165,47 +167,49 @@ const followUnfollowUser = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
+	const { name, email, username, password, bio } = req.body;
+	let { profilePic } = req.body;
 
-    // 1.Destructure fields from the request body
-    const { name, email, username, password, profilePic, bio } = req.body;
+	const userId = req.user._id;
+	try {
+		let user = await User.findById(userId);
+		if (!user) return res.status(400).json({ error: "User not found" });
 
-    //2. Get the current user's ID from the authenticated request
-    const userId = req.user._id;
+		if (req.params.id !== userId.toString())
+			return res.status(400).json({ error: "You cannot update other user's profile" });
 
-    try {
-        //3. Find the user in the database by ID
-        let user = await User.findById(userId);
-        if (!user) return res.status(400).json({ message: "User Not Found" })
+		if (password) {
+			const salt = await bcrypt.genSalt(10);
+			const hashedPassword = await bcrypt.hash(password, salt);
+			user.password = hashedPassword;
+		}
 
-        //4.you can not update others profile only yours can
-        if (req.params.id !== userId.toString())
-            return res.status(400).json({ error: "You cannot update other user's profile" });
+		if (profilePic) {
+			if (user.profilePic) {
+				await cloudinary.uploader.destroy(user.profilePic.split("/").pop().split(".")[0]);
+			}
 
-        //5. If a new password is provided, hash it securely
-        if (password) {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-            user.password = hashedPassword;
-        }
+			const uploadedResponse = await cloudinary.uploader.upload(profilePic);
+			profilePic = uploadedResponse.secure_url;
+		}
 
-        //6. Update user's profile fields if provided, otherwise keep existing values
-        user.name = name || user.name;
-        user.email = email || user.email;
-        user.username = username || user.username;
-        user.profilePic = profilePic || user.profilePic;
-        user.bio = bio || user.bio;
+		user.name = name || user.name;
+		user.email = email || user.email;
+		user.username = username || user.username;
+		user.profilePic = profilePic || user.profilePic;
+		user.bio = bio || user.bio;
 
-        //7. Save the updated user document back to the database
-        user = await user.save();
-        res.status(200).json({ message: "Profile updated Successfully", user });
+		user = await user.save();
 
+		// password should be null in response
+		user.password = null;
 
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-        console.log("error in updateUser", error);
-    }
+		res.status(200).json(user);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+		console.log("Error in updateUser: ", err.message);
+	}
 };
-
 
 
 export { signupUser, loginUser, logoutUser, followUnfollowUser, updateUser, getUserProfile };
