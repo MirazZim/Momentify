@@ -76,10 +76,10 @@ const signupUser = async (req, res) => {
 const loginUser = async (req, res) => {
     try {
         //Extracting Data from req.body
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
         //check if user already exists
-        const user = await User.findOne({ username })
+        const user = await User.findOne({ email })
 
         //If user not found
         if (!user) {

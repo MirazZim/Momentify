@@ -36,32 +36,33 @@ const Login = () => {
     });
 
 
+   
+
     const handleLogin = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch("/api/users/login", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(inputs),
-            });
-            const data = await res.json();
-            if (data.message) {
-                showToast("Error", data.message, "error");
-                return;
-            }
+		setLoading(true);
+		try {
+			const res = await fetch("/api/users/login", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(inputs),
+			});
+			const data = await res.json();
+			if (data.message) {
+            showToast("Error", data.message, "error");
+            return;
+			}
 
             showToast("Login Successful", "You have successfully logged in.", "success");
-
-            localStorage.setItem("user-threads", JSON.stringify(data));
-            setUser(data);
-        } catch (error) {
-            showToast("Error", error, "error");
-        } finally {
-            setLoading(false);
-        }
-    };
+			localStorage.setItem("user-threads", JSON.stringify(data));
+			setUser(data);
+		} catch (error) {
+			showToast("Error", error, "error");
+		} finally {
+			setLoading(false);
+		}
+	};
 
     return (
         <Flex
