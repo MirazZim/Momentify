@@ -2,7 +2,7 @@ import { Avatar, Box, Flex, Link, Menu, MenuButton, MenuItem, MenuList, Portal, 
 import { BsInstagram } from "react-icons/bs"
 import { CgMoreO } from "react-icons/cg"
 
-const UserHeader = () => {
+const UserHeader = ({ user }) => {
     const toast = useToast()
 
     const copyURL = () => {
@@ -28,30 +28,37 @@ const UserHeader = () => {
             <Flex justifyContent={"space-between"} w={"full"}>
                 <Box>
                     <Text fontSize={"2xl"} fontWeight={"bold"}>
-                        Mark Zuck
+                        {user.name}
                     </Text>
 
                     <Flex gap={2} alignItems={"center"}>
-                        <Text fontSize={"sm"}>markzuck</Text>
+                        <Text fontSize={"sm"}>{user.username}</Text>
                         <Text fontSize={"xs"} bg={"gray.dark"} color={"gray.light"} p={1} borderRadius={"full"}>
+
                             threads.net
                         </Text>
                     </Flex>
                 </Box>
 
                 <Box>
-                    <Avatar name="Mark Zuck" src="zuck-avatar.png" size={{
+                    {user.profilePic && <Avatar name={user.name} src={user.profilePic} size={{
                         base: "md",
                         md: "xl",
-                    }} />
+                    }} />}
+                    {!user.profilePic && <Avatar name={user.name}
+                        src="/avatar.png"
+                        size={{
+                            base: "md",
+                            md: "xl",
+                        }} />}
                 </Box>
             </Flex>
 
-            <Text>Co-Founder, Executive chairman and CEO of Meta Platforms</Text>
+            <Text>{user.bio}</Text>
 
             <Flex w={"full"} justifyContent={"space-between"}>
                 <Flex gap={2} alignItems={"center"}>
-                    <Text color={"gray.light"}>2.5K Followers</Text>
+                    <Text color={"gray.light"}>{user.followers.length} Followers</Text>
                     <Box w={1} h={1} bg={"gray.light"} borderRadius={"full"}></Box>
                     <Link color={"gray.light"}>Instagram.com</Link>
                 </Flex>
