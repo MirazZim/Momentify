@@ -1,5 +1,6 @@
 import User from "../models/userModel.js";
 import Post from "../models/postModel.js";
+import { v2 as cloudinary } from "cloudinary";
 
 const createPost = async (req, res) => {
     try {
@@ -8,7 +9,7 @@ const createPost = async (req, res) => {
 
         // Check if 'postedBy' and 'text' are provided, if not, send a 400 error
         if (!postedBy || !text) {
-            return res.status(400).json({ message: "Missing required fields" });
+            return res.status(400).json({ error: "Postedby and text fields are required" });
         }
 
         // Find the user by the 'postedBy' ID
@@ -16,7 +17,7 @@ const createPost = async (req, res) => {
 
         // If no user is found, send a 400 error
         if (!user) {
-            return res.status(400).json({ message: "User not found" });
+            return res.status(400).json({ error: "User not found" });
         }
 
         // Check if the authenticated user is the same as the 'postedBy' user
@@ -30,13 +31,17 @@ const createPost = async (req, res) => {
             return res.status(400).json({ error: `Text must be less than ${maxLength} characters` });
         }
 
+        if (img) {
+            const uploadedResponse = await cloudinary.uploader.upload(img);
+            img = uploadedResponse.secure_url;
+        }
+
         // Create a new Post instance with 'postedBy', 'text', and 'img'
         const newPost = new Post({ postedBy, text, img });
 
         // Save the newly created post to the database
         await newPost.save();
-        res.status(201).json({ message: "Post created successfully", newPost })
-
+        res.status(201).json(newPost);
 
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -171,26 +176,26 @@ const replyToPost = async (req, res) => {
 
 const getFeedPosts = async (req, res) => {
     try {
-         // The userId is retrieved from the authenticated request (req.user._id). 
+        // The userId is retrieved from the authenticated request (req.user._id). 
         const userId = req.user._id;
 
         // We find the user in the database using the userId.
-		const user = await User.findById(userId);
+        const user = await User.findById(userId);
 
-		if (!user) {
-			return res.status(404).json({ error: "User not found" });
-		}
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
 
         // Get the list of users that the current user is following. This is an array of user IDs.
-		const following = user.following;
+        const following = user.following;
 
 
-         // Query the Post collection to find all posts made by the users that the current user is following.
+        // Query the Post collection to find all posts made by the users that the current user is following.
         // This will return posts where the 'postedBy' field matches any of the IDs in the 'following' array.
         // The posts are sorted by the 'createdAt' field in descending order (newest posts first).
-		const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({ createdAt: -1 });
+        const feedPosts = await Post.find({ postedBy: { $in: following } }).sort({ createdAt: -1 });
 
-		res.status(200).json(feedPosts);
+        res.status(200).json(feedPosts);
     } catch (error) {
         res.status(500).json({ message: error.message });
         console.log("error in getFeedPosts", error);
