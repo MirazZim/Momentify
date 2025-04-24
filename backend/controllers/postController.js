@@ -5,8 +5,10 @@ import { v2 as cloudinary } from "cloudinary";
 const createPost = async (req, res) => {
     try {
         //Destructure from the body
-        const { postedBy, text, img } = req.body;
+        const { postedBy, text } = req.body;
 
+        let { img } = req.body;
+        
         // Check if 'postedBy' and 'text' are provided, if not, send a 400 error
         if (!postedBy || !text) {
             return res.status(400).json({ error: "Postedby and text fields are required" });

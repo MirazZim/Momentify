@@ -27,7 +27,7 @@ cloudinary.config({
 //This middleware parses the body of the request and converts it into a JSON object
 //This is required because the body of the request is sent as a stream and not as a JSON object
 //After this middleware is used, the body of the request is available as a JSON object in the request object
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 
 //This middleware parses the urlencoded data sent in the body of the request
