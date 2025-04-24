@@ -1,9 +1,19 @@
-import { Avatar, Box, Flex, Link, Menu, MenuButton, MenuItem, MenuList, Portal, Text, useToast, VStack } from "@chakra-ui/react"
+import { Avatar, Box, Button, Flex, Link, Menu, MenuButton, MenuItem, MenuList, Portal, Text, useToast, VStack } from "@chakra-ui/react"
 import { BsInstagram } from "react-icons/bs"
 import { CgMoreO } from "react-icons/cg"
+import { useRecoilValue } from "recoil"
+import userAtom from "../../atoms/userAtom.js"
+import { Link as RouterLink } from "react-router-dom";
+import useFollowUnfollow from "../hooks/useFollowUnfollow.js"
+
+
 
 const UserHeader = ({ user }) => {
     const toast = useToast()
+
+    const currentUser = useRecoilValue(userAtom); //this is the user that logged in
+
+    const { handleFollowUnfollow, following, updating } = useFollowUnfollow(user);
 
     const copyURL = () => {
         const currentURL = window.location.href;
@@ -55,6 +65,18 @@ const UserHeader = ({ user }) => {
             </Flex>
 
             <Text>{user.bio}</Text>
+
+            {currentUser?._id === user._id && (
+                <Link as={RouterLink} to='/update'>
+                    <Button size={"sm"}>Update Profile</Button>
+                </Link>
+            )}
+
+            {currentUser?._id !== user._id && (
+                <Button size={"sm"} onClick={handleFollowUnfollow} isLoading={updating}>
+                    {following ? "Unfollow" : "Follow"}
+                </Button>
+            )}
 
             <Flex w={"full"} justifyContent={"space-between"}>
                 <Flex gap={2} alignItems={"center"}>
