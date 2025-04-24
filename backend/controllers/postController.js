@@ -44,7 +44,7 @@ const createPost = async (req, res) => {
         res.status(201).json(newPost);
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
         console.log("error in createPost", error);
     }
 
@@ -56,13 +56,13 @@ const getPost = async (req, res) => {
         const post = await Post.findById(req.params.id)
 
         if (!post) {
-            return res.status(404).json({ message: "Post not found" });
+            return res.status(404).json({ error: "Post not found" });
         }
 
         res.status(200).json({ post });
 
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
         console.log("error in getPost", error);
     }
 }
@@ -77,7 +77,7 @@ const deletePost = async (req, res) => {
 
         // If no post is found, send a 400 error
         if (!post) {
-            return res.status(400).json({ message: "Post not found" });
+            return res.status(400).json({ error: "Post not found" });
         }
 
         // Check if the authenticated user is the same as the 'postedBy' user
@@ -89,7 +89,7 @@ const deletePost = async (req, res) => {
         await Post.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: "Post deleted successfully" });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
         console.log("error in deletePost", error);
     }
 }
@@ -169,7 +169,7 @@ const replyToPost = async (req, res) => {
 
         res.status(200).json(reply);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
         console.log("error in replyToPost", error);
     }
 }
@@ -197,7 +197,7 @@ const getFeedPosts = async (req, res) => {
 
         res.status(200).json(feedPosts);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ error: error.message });
         console.log("error in getFeedPosts", error);
     }
 }
