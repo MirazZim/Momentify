@@ -108,7 +108,7 @@ const Login = () => {
                         </FormControl>
                         <Stack spacing={10} pt={2}>
                             <Button
-                                
+                                loadingText="Logging in..."
                                 size="lg"
                                 bg={useColorModeValue('gray.600', 'gray.700')}
                                 color={'white'}
