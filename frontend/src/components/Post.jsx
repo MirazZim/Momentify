@@ -5,13 +5,19 @@ import Actions from "./Actions";
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { formatDistanceToNow } from "date-fns";
-
+import { DeleteIcon } from "@chakra-ui/icons";
+import { useRecoilState, useRecoilValue } from "recoil";
+import userAtom from "../../atoms/userAtom";
+import postsAtom from "../../atoms/postsAtom";
+import Swal from "sweetalert2";
 
 const Post = ({ post, postedBy }) => {
     
     const [user, setUser] = useState(null);
     const showToast = useShowToast();
     const navigate = useNavigate();
+    const currentUser = useRecoilValue(userAtom);
+    const [posts, setPosts] = useRecoilState(postsAtom);
 
     useEffect(() => {
         const getUser = async () => {
@@ -32,6 +38,37 @@ const Post = ({ post, postedBy }) => {
 
         getUser();
     }, [postedBy, showToast]);
+
+    const handleDeletePost = async (e) => {
+		e.preventDefault();
+		Swal.fire({
+			title: "Delete Post?",
+			text: "This action is permanent!",
+			icon: "error",
+			showCancelButton: true,
+			confirmButtonColor: "#ff5252",
+			cancelButtonColor: "#3e8e41",
+			confirmButtonText: "Delete",
+			cancelButtonText: "Cancel"
+		}).then(async (result) => {
+			if (result.isConfirmed) {
+				try {
+					const res = await fetch(`/api/posts/${post._id}`, {
+						method: "DELETE",
+					});
+					const data = await res.json();
+					if (data.error) {
+						showToast("Error", data.error, "error");
+						return;
+					} 
+					showToast("Success", "Post deleted", "success");
+					setPosts(posts.filter((p) => p._id !== post._id));
+				} catch (error) {
+					showToast("Error", error.message, "error");
+				}
+			}
+		});
+	};
 
     if (!user) return null;
     return (
@@ -113,10 +150,10 @@ const Post = ({ post, postedBy }) => {
                         <Text fontSize={"xs"} width={36} textAlign={"right"} color={"gray.light"}>
 								{formatDistanceToNow(new Date(post.createdAt))} ago
 							</Text>
-                            
-                        </Flex>
+                            {currentUser?._id === user._id && <DeleteIcon size={20} onClick={handleDeletePost}/>}
+                        </Flex> 
                     </Flex>
-
+ 
 
                     {/* Post Text */}
                     <Text fontSize={"sm"}>{post.text}</Text>
