@@ -5,53 +5,23 @@ import { useParams } from "react-router-dom";
 import useShowToast from "../hooks/useShowToast.js";
 import { Flex, Spinner } from "@chakra-ui/react";
 import Post from "../components/Post.jsx";
+import useGetUserProfile from "../hooks/useGetUserProfile.js";
 
 
 
 
 const UserPage = () => {
-
-    // state to store the user data
-    const [user, setUser] = useState(null);
-
+    //Update: used the useGetUserProfile Hook
+    const {user , loading} = useGetUserProfile();
     // extracting the username from the url
     const { username } = useParams();
-
-    const showToast = useShowToast();
-
-    const [loading, setLoading] = useState(true);
+    const showToast = useShowToast(); 
     const [posts, setPosts] = useState([]);
     const [fetchingPosts, setFetchingPosts] = useState(true);
 
 
     useEffect(() => {
-        // an async function to fetch user data
-        const getUser = async () => {
-            try {
-                // fetch the user data from the server
-                const res = await fetch(`/api/users/profile/${username}`);
-                // get the response data
-                const data = await res.json();
-
-                // if there is an error
-                if (data.error) {
-                    // show the error message
-                    showToast("Error", data.error, "error");
-                    // return so we dont set the user
-                    return;
-                }
-                // set the user state
-                setUser(data);
-            } catch (error) {
-                // if there was an error
-                // show the error message
-                showToast("Error", error.message, "error");
-
-            } finally {
-                // set the loading state to false
-                setLoading(false);
-            }
-        };
+        
 
         const getPosts = async () => {
             setFetchingPosts(true)
@@ -73,7 +43,6 @@ const UserPage = () => {
         };
 
         // call the function
-        getUser();
         getPosts();
     }, [username, showToast])
 
