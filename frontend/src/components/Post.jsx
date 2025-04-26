@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, Image, Text } from "@chakra-ui/react";
+import { Avatar, Box, Divider, Flex, Image, Text } from "@chakra-ui/react";
 
 import { Link, useNavigate } from "react-router-dom"
 import Actions from "./Actions";
@@ -172,6 +172,7 @@ const Post = ({ post, postedBy }) => {
                     <Flex gap={3} my={1}>
                         <Actions post={post} />
                     </Flex>
+                    
 
                     {/* Post Interactions */}
 
@@ -179,7 +180,7 @@ const Post = ({ post, postedBy }) => {
 
 
                 </Flex>
-            </Flex>
+            </Flex><Divider color={"gray.light"} my={4} />
         </Link>
     )
 }

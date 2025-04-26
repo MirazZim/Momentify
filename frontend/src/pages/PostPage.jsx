@@ -1,16 +1,17 @@
 import { Avatar, Box, Button, Divider, Flex, Image, Spinner, Text } from "@chakra-ui/react"
-import { BsThreeDots } from "react-icons/bs"
+
 import Actions from "../components/Actions"
 import useGetUserProfile from "../hooks/useGetUserProfile";
 import { useEffect, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { formatDistanceToNow } from "date-fns";
 import Swal from "sweetalert2";
 import { useRecoilState, useRecoilValue } from "recoil";
 import postsAtom from "../../atoms/postsAtom";
 import userAtom from "../../atoms/userAtom";
+import Comment from "../components/Comment";
 
 
 
@@ -21,6 +22,7 @@ const PostPage = () => {
   const { pid } = useParams();
   const [posts, setPosts] = useRecoilState(postsAtom);
   const currentUser = useRecoilValue(userAtom);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const getPost = async () => {
@@ -41,36 +43,36 @@ const PostPage = () => {
   }, [])
 
 
-   const handleDeletePost = async (e) => {
-      e.preventDefault();
-      Swal.fire({
-        title: "Delete Post?",
-        text: "This action is permanent!",
-        icon: "error",
-        showCancelButton: true,
-        confirmButtonColor: "#ff5252",
-        cancelButtonColor: "#3e8e41",
-        confirmButtonText: "Delete",
-        cancelButtonText: "Cancel"
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          try {
-            const res = await fetch(`/api/posts/${post._id}`, {
-              method: "DELETE",
-            });
-            const data = await res.json();
-            if (data.error) {
-              showToast("Error", data.error, "error");
-              return;
-            } 
-            showToast("Success", "Post deleted", "success");
-            setPosts(posts.filter((p) => p._id !== post._id));
-          } catch (error) {
-            showToast("Error", error.message, "error");
+  const handleDeletePost = async () => {
+    Swal.fire({
+      title: "Delete Post?",
+      text: "This action is permanent!",
+      icon: "error",
+      showCancelButton: true,
+      confirmButtonColor: "#ff5252",
+      cancelButtonColor: "#3e8e41",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel"
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(`/api/posts/${post._id}`, {
+            method: "DELETE",
+          });
+          const data = await res.json();
+          if (data.error) {
+            showToast("Error", data.error, "error");
+            return;
           }
+          showToast("Success", "Post deleted", "success");
+          setPosts(posts.filter((p) => p._id !== post._id));
+          navigate(`/${user.username}`);
+        } catch (error) {
+          showToast("Error", error.message, "error");
         }
-      });
-    };
+      }
+    });
+  };
 
   if (!user && loading) {
     return (
@@ -106,7 +108,7 @@ const PostPage = () => {
           <Text fontSize={"xs"} width={36} textAlign={"right"} color={"gray.light"}>
             {formatDistanceToNow(new Date(post.createdAt))} ago
           </Text>
-          {currentUser?._id === user._id && <DeleteIcon size={20} onClick={handleDeletePost} />}
+          {currentUser?._id === user._id && <DeleteIcon size={20} cursor={"pointer"} onClick={handleDeletePost} />}
         </Flex>
       </Flex>
 
@@ -144,6 +146,13 @@ const PostPage = () => {
       <Divider my={4} />
 
       {/* <Comment comments="Looks really good" /> */}
+      {post.replies.map((reply) => (
+        <Comment 
+        key={reply._id} 
+        reply={reply} 
+        lastReply={reply._id === post.replies[post.replies.length - 1]._id}
+        />
+      ))}
 
 
 
