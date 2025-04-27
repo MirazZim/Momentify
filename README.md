@@ -8,3 +8,8 @@ Login Page: Updated The theme
 
 
 Login Page : Updated Functionalities.
+
+
+SignUp Page: Updated the Structure
+
+SignUp Page: Added The Functionalities
