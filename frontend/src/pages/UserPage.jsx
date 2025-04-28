@@ -6,6 +6,8 @@ import useShowToast from "../hooks/useShowToast.js";
 import { Flex, Spinner } from "@chakra-ui/react";
 import Post from "../components/Post.jsx";
 import useGetUserProfile from "../hooks/useGetUserProfile.js";
+import { useRecoilState } from "recoil";
+import postsAtom from "../../atoms/postsAtom.js";
 
 
 
@@ -16,9 +18,8 @@ const UserPage = () => {
     // extracting the username from the url
     const { username } = useParams();
     const showToast = useShowToast(); 
-    const [posts, setPosts] = useState([]);
+    const [posts, setPosts] = useRecoilState(postsAtom);
     const [fetchingPosts, setFetchingPosts] = useState(true);
-
 
     useEffect(() => {
         
@@ -44,7 +45,8 @@ const UserPage = () => {
 
         // call the function
         getPosts();
-    }, [username, showToast])
+    }, [username, showToast, setPosts]);
+    
 
     if (!user && loading) {
         return (
