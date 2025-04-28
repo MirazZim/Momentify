@@ -45,27 +45,27 @@ const Header = () => {
             {
                 user && (
                     <Flex alignItems={"center"} gap={4}>
-                    <Link as={RouterLink} to={`/${user.username}`} >
-                        <RxAvatar size={24} />
-                    </Link>
+                        <Link as={RouterLink} to={`/${user.username}`} >
+                            <RxAvatar size={24} />
+                        </Link>
 
-                     <Button
-                                
-                                size={"xs"}
-                    
-                                onClick={logout}
-                    
-                    
-                            >
-                               <LuLogOut size={20} />
-                            </Button>
+                        <Button
+
+                            size={"xs"}
+
+                            onClick={logout}
+
+
+                        >
+                            <LuLogOut size={20} />
+                        </Button>
                     </Flex>
                 )
             }
 
-{
+            {
                 !user && (
-                    <Link as={RouterLink} to={"/auth"}  onClick={() => setAuthScreen('Sign Up')} >
+                    <Link as={RouterLink} to={"/auth"} onClick={() => setAuthScreen('Sign Up')} >
                         Sign Up
                     </Link>
                 )
