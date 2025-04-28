@@ -91,6 +91,7 @@ const handleCreatePost = async () => {
 		if (username === user.username) {
 			setPosts([data, ...posts]); // Optimistically update UI with new post
 		}
+        setPosts([data, ...posts]);
 		onClose(); // Close modal
 		setPostText(""); // Clear post input
 		setImgUrl(""); // Clear image preview
