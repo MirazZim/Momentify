@@ -11,6 +11,7 @@ import { useRecoilValue } from "recoil"
 
 import UpdateProfilePage from "./pages/UpdateProfilePage.jsx"
 import CreatePost from "./components/CreatePost.jsx"
+import ChatPage from "./pages/ChatPage.jsx"
 
 
 
@@ -48,6 +49,7 @@ function App() {
 
           
           <Route path="/:username/post/:pid" element={<PostPage />} />
+          <Route path="/chat" element={user ? <ChatPage /> : <Navigate to='/auth' />} />
          </Routes>
 
          

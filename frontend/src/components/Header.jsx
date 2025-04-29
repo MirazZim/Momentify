@@ -7,6 +7,7 @@ import { RxAvatar } from "react-icons/rx"
 import { LuLogOut } from "react-icons/lu"
 import useLogout from "../hooks/useLogout.js"
 import authScreenAtom from "../../atoms/authAtom.js"
+import { BsFillChatQuoteFill } from "react-icons/bs"
 
 
 const Header = () => {
@@ -47,6 +48,12 @@ const Header = () => {
                     <Flex alignItems={"center"} gap={4}>
                         <Link as={RouterLink} to={`/${user.username}`} >
                             <RxAvatar size={24} />
+                        </Link>
+
+                        
+                     {/* Chat Button If logged in */}
+                        <Link as={RouterLink} to={`/chat`} >
+                            <BsFillChatQuoteFill size={20} />
                         </Link>
 
                         <Button
