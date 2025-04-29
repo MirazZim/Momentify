@@ -1,8 +1,9 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, Input, Skeleton, SkeletonCircle, Text, useColorMode } from '@chakra-ui/react'
 import React from 'react'
-import Conversation from '../components/Conversations'
 import Conversations from '../components/Conversations'
+import { GiConversation } from 'react-icons/gi'
+import MessageContainer from '../components/MessageContainer'
 
 const ChatPage = () => {
     return (
@@ -80,7 +81,23 @@ const ChatPage = () => {
                     <Conversations/>
                     <Conversations/>
                 </Flex>
-                <Flex flex={70}>Message Containers</Flex>
+
+                {/* <Flex
+						flex={70}
+						borderRadius={"md"}
+						p={2}
+						flexDir={"column"}
+						alignItems={"center"}
+						justifyContent={"center"}
+						height={"400px"}
+					>
+						<GiConversation size={100} />
+						<Text fontSize={20}>Select a conversation to start messaging</Text>
+					</Flex> */}
+
+                
+                    <MessageContainer/>
+                
 
             </Flex>
 
