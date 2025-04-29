@@ -1,5 +1,5 @@
 
-import { Container} from "@chakra-ui/react"
+import { Box, Container} from "@chakra-ui/react"
 import { Navigate, Route, Routes } from "react-router-dom"
 import UserPage from "./pages/UserPage"
 import PostPage from "./pages/PostPage"
@@ -24,6 +24,7 @@ function App() {
 
   return (
     <>
+    <Box position="relative" w="full">
       <Container maxW="620px" >
         <Header />
          <Routes>
@@ -55,6 +56,7 @@ function App() {
          
          
       </Container>
+      </Box>
       
     </>
   )
