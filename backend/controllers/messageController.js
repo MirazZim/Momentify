@@ -102,4 +102,30 @@ async function getMessages(req, res) {
     }
 }
 
-export { sendMessage, getMessages };
+async function getConversations(req, res) {
+	// Get the conversations of the current user
+	const userId = req.user._id;
+	try {
+		// Find all conversations that the current user is a participant in
+		const conversations = await Conversation.find({ participants: userId }).populate({
+			path: "participants",
+			select: "username profilePic",
+		});
+
+		// Remove the current user from the participants array
+		// So that the recipient is the only one left in the array
+		conversations.forEach((conversation) => {
+			conversation.participants = conversation.participants.filter(
+				(participant) => participant._id.toString() !== userId.toString()
+			);
+		});
+
+		// Return the conversations in the response
+		res.status(200).json(conversations);
+	} catch (error) {
+		// If there is an error, return a 500 status with the error message
+		res.status(500).json({ error: error.message });
+	}
+}
+
+export { sendMessage, getMessages, getConversations };
