@@ -1,11 +1,42 @@
 import { SearchIcon } from '@chakra-ui/icons'
 import { Box, Button, Flex, Input, Skeleton, SkeletonCircle, Text, useColorMode } from '@chakra-ui/react'
-import React from 'react'
+import { useEffect, useState } from 'react'
 import Conversations from '../components/Conversations'
-import { GiConversation } from 'react-icons/gi'
 import MessageContainer from '../components/MessageContainer'
+import useShowToast from '../hooks/useShowToast.js'
+import { useRecoilState } from 'recoil'
+import { conversationsAtom } from '../../atoms/messagesAtom.js'
 
 const ChatPage = () => {
+    const showToast = useShowToast();
+    const [loadingConversations, setLoadingConversations] = useState(true);
+    const [conversations, setConversations] = useRecoilState(conversationsAtom);
+
+
+
+    useEffect(() => {
+        const getConversations = async () => {
+
+            try {
+                const res = await fetch("/api/messages/conversations");
+                const data = await res.json();
+                if (data.error) {
+                    showToast("Error", data.error, "error");
+                    return;
+                }
+                setConversations(data);
+
+            } catch (error) {
+                showToast("Error", error.message, "error");
+            } finally {
+                setLoadingConversations(false);
+            }
+        };
+
+        getConversations();
+    }, [showToast, setConversations]);
+
+
     return (
         <Box
             position={"absolute"}
@@ -55,7 +86,7 @@ const ChatPage = () => {
                         </Flex>
 
                     </form>
-                    {false && (
+                    {loadingConversations && (
                         [0, 1, 2, 3, 4, 5].map((_, i) => (
                             <Flex
                                 p={1}
@@ -76,10 +107,11 @@ const ChatPage = () => {
                         ))
                     )}
 
-                    <Conversations/>
-                    <Conversations/>
-                    <Conversations/>
-                    <Conversations/>
+                    {!loadingConversations && (
+                        conversations.map((conversation) => (
+                            <Conversations key={conversation._id} conversation={conversation} />
+                        ))
+                    )}
                 </Flex>
 
                 {/* <Flex
@@ -95,9 +127,9 @@ const ChatPage = () => {
 						<Text fontSize={20}>Select a conversation to start messaging</Text>
 					</Flex> */}
 
-                
-                    <MessageContainer/>
-                
+
+                <MessageContainer />
+
 
             </Flex>
 
