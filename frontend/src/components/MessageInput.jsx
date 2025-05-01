@@ -4,12 +4,20 @@ import { IoSendSharp } from "react-icons/io5";
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useDisclosure } from "@chakra-ui/react";
 import { Image, Button } from "@chakra-ui/react";
 import { useState } from "react";
+import useShowToast from "../hooks/useShowToast";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { conversationsAtom, selectedConversationAtom } from "../../atoms/messagesAtom";
 
-const MessageInput = () => {
+const MessageInput = ({ setMessages }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedImage, setSelectedImage] = useState(null);
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
+
+  const [messageText, setMessageText] = useState("");
+  const showToast = useShowToast();
+  const selectedConversation = useRecoilValue(selectedConversationAtom);
+  const setConversations = useSetRecoilState(conversationsAtom);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -19,6 +27,51 @@ const MessageInput = () => {
     }
   };
 
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!messageText) return;
+    try {
+      const res = await fetch("/api/messages", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					message: messageText,
+					recipientId: selectedConversation.userId,
+				}),
+			});
+			const data = await res.json();
+			if (data.error) {
+				showToast("Error", data.error, "error");
+				return;
+			}
+			console.log(data);
+			setMessages((messages) => [...messages, data]);
+
+      setConversations((prevConvs) => {
+				const updatedConversations = prevConvs.map((conversation) => {
+					if (conversation._id === selectedConversation._id) {
+						return {
+							...conversation,
+							lastMessage: {
+								text: messageText,
+								sender: data.sender,
+							},
+						};
+					}
+					return conversation;
+				});
+				return updatedConversations;
+			});
+
+
+    setMessageText("");
+    
+    } catch (error) {
+      showToast("Error", error.message, "error");
+    }    
+  }
   return (
     <Flex
       gap={2}
@@ -31,8 +84,8 @@ const MessageInput = () => {
       boxShadow="sm"
       _hover={{ boxShadow: "md" }}
       transition="all 0.2s"
-    >
-      <form style={{ flex: 95 }}>
+    > 
+      <form onSubmit={handleSendMessage} style={{ flex: 95 }}>
         <InputGroup>
           <Input
             w="full"
@@ -44,8 +97,10 @@ const MessageInput = () => {
             px={4}
             _focus={{ boxShadow: "outline", bg: useColorModeValue("white", "gray.600") }}
             _hover={{ bg: useColorModeValue("gray.200", "gray.600") }}
+            onChange={(e) => setMessageText(e.target.value)}
+						value={messageText}
           />
-          <InputRightElement>
+          <InputRightElement  onClick={handleSendMessage} cursor={"pointer"}>
             <IconButton
               aria-label="Send message"
               icon={<IoSendSharp />}
