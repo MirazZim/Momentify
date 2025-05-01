@@ -24,7 +24,7 @@ const Message = ({ ownMessage, message }) => {
                     : (
                         <Flex gap={2}
                         >
-                            <Avatar rc={selectedConversation.userProfilePic} w={7} h={7} />
+                            <Avatar src={selectedConversation.userProfilePic} w={7} h={7} />
                             <Text maxW={"350px"} bg={"gray.400"} p={1} borderRadius={"md"} color={"black"}>
                                 {message.text}
                             </Text>

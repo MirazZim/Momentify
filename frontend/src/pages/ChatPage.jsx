@@ -91,6 +91,8 @@ const ChatPage = () => {
                         _id: searchedUser._id,
                         username: searchedUser.username,
                         profilePic: searchedUser.profilePic,
+                        
+                       
                     },
                 ],
             };
