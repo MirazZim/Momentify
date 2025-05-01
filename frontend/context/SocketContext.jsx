@@ -1,0 +1,42 @@
+import { createContext, useContext, useEffect, useState } from "react";
+import io from "socket.io-client";
+import { useRecoilValue } from "recoil";
+import userAtom from "../atoms/userAtom";
+
+// Create a context for sharing socket instance
+const SocketContext = createContext();
+
+// Custom hook to access socket context
+export const useSocket = () => {
+    return useContext(SocketContext);
+};
+
+// Provider component to manage socket connection
+export const SocketContextProvider = ({ children }) => {
+    const [socket, setSocket] = useState(null);
+    
+    const user = useRecoilValue(userAtom);
+
+    // Effect to initialize and manage socket connection
+    useEffect(() => {
+        // Connect to Socket.IO server with user ID in query
+        const socket = io("http://localhost:5000", {
+            query: {
+                userId: user?._id, // Pass user ID to identify client
+            },
+        });
+
+        // Store socket instance in state
+        setSocket(socket);
+
+        // Cleanup: Disconnect socket when component unmounts
+        return () => socket && socket.close();
+    }, [user?._id]); // Re-run effect if user ID changes
+
+    // Provide socket instance to children components
+    return (
+        <SocketContext.Provider value={{ socket }}>
+            {children}
+        </SocketContext.Provider>
+    );
+};
