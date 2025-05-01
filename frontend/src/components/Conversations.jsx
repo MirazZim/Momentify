@@ -1,13 +1,17 @@
 import { Avatar, AvatarBadge, Box, Flex, Image, Stack, Text, useColorMode, useColorModeValue, WrapItem } from '@chakra-ui/react'
 import React from 'react'
 import { BsCheck2All, BsFillFileImageFill } from 'react-icons/bs'
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import userAtom from "../../atoms/userAtom.js"
+import { selectedConversationAtom } from '../../atoms/messagesAtom.js';
 
 const Conversations = ({ conversation }) => {
   const user = conversation.participants[0];
-	const currentUser = useRecoilValue(userAtom);
-	const lastMessage = conversation.lastMessage;
+  const currentUser = useRecoilValue(userAtom);
+  const lastMessage = conversation.lastMessage;
+  const [selectedConversation, setSelectedConversation] = useRecoilState(selectedConversationAtom);
+
+  console.log(selectedConversation);
   return (
     <Flex
       gap={2}
@@ -17,8 +21,21 @@ const Conversations = ({ conversation }) => {
         cursor: "pointer",
         bg: useColorModeValue("gray.600", "gray.dark"),
         color: "white",
-        borderRadius: "md"
       }}
+      borderRadius="md"
+      onClick={() => {
+        setSelectedConversation({
+          _id: conversation._id,
+          userId: user._id,
+          userProfilePic: user.profilePic,
+          username: user.username,
+
+        });
+      }}
+
+      bg={
+        selectedConversation?._id === conversation._id ? (useColorMode().colorMode === "light" ? "gray.400" : "gray.dark") : ""
+      }
     >
       <WrapItem>
         <Avatar
@@ -42,16 +59,16 @@ const Conversations = ({ conversation }) => {
           <Image src='/verified.png' w={4} h={4} ml={1} />
         </Text>
         <Text fontSize={"xs"} display={"flex"} alignItems={"center"} gap={1}>
-        {currentUser._id === lastMessage.sender ? (
-						<Box color={lastMessage.seen ? "blue.400" : ""}>
-							<BsCheck2All size={16} />
-						</Box>
-					) : (
-						""
-					)}
-					{lastMessage.text.length > 18
-						? lastMessage.text.substring(0, 18) + "..."
-						: lastMessage.text || <BsFillFileImageFill size={16} />}
+          {currentUser._id === lastMessage.sender ? (
+            <Box color={lastMessage.seen ? "blue.400" : ""}>
+              <BsCheck2All size={16} />
+            </Box>
+          ) : (
+            ""
+          )}
+          {lastMessage.text.length > 18
+            ? lastMessage.text.substring(0, 18) + "..."
+            : lastMessage.text || <BsFillFileImageFill size={16} />}
         </Text>
       </Stack>
     </Flex>
