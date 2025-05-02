@@ -70,7 +70,37 @@ const MessageContainer = () => {
 
 
 
-    //9. Scroll to the last message when messages change
+    useEffect(() => {
+        //1. Check if the last message is from another user
+		const lastMessageIsFromOtherUser = messages.length && messages[messages.length - 1].sender !== currentUser._id;
+		if (lastMessageIsFromOtherUser) {
+            //2. Emit event to mark messages as seen when conversation is opened
+			socket.emit("markMessagesAsSeen", {
+				conversationId: selectedConversation._id,
+				userId: selectedConversation.userId,
+			});
+		}
+
+          // Listen for messagesSeen event to update message seen status
+		socket.on("messagesSeen", ({ conversationId }) => {
+			if (selectedConversation._id === conversationId) {
+				setMessages((prev) => {
+					const updatedMessages = prev.map((message) => {
+						if (!message.seen) {
+							return {
+								...message,
+								seen: true,
+							};
+						}
+						return message;
+					});
+					return updatedMessages;
+				});
+			}
+		});
+	}, [socket, currentUser._id, messages, selectedConversation]);
+
+    // Scroll to the last message when messages change
     useEffect(() => {
         messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
@@ -99,7 +129,11 @@ const MessageContainer = () => {
         };
 
         getMessages();
-    }, [showToast, selectedConversation.userId]);
+    }, [showToast, selectedConversation.userId, selectedConversation.mock]);
+
+
+
+
 
     return (
         <Flex

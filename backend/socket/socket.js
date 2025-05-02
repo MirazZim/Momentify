@@ -1,6 +1,8 @@
 import { Server } from "socket.io";
 import http from "http";
 import express from "express";
+import Message from "../models/messageModel.js";
+import Conversation from "../models/conversationModel.js";
 
 const app = express();
 
@@ -40,6 +42,29 @@ io.on("connection", (socket) => {
     if (userId != "undefined") userSocketMap[userId] = socket.id;
     //3. Broadcast the list of online users to all connected clients
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+
+    /* Mark Messages as Seen */
+    socket.on("markMessagesAsSeen", async ({ conversationId, userId }) => {
+        try {
+             // Update all unseen messages in the conversation to seen
+            const updatedMessages = await Message.updateMany(
+                { conversationId, seen: false },
+                { $set: { seen: true } }
+            );
+            
+             // Notify the client that messages are seen
+            io.to(userSocketMap[userId]).emit("messagesSeen", { conversationId });
+
+            // Update the conversation's lastMessage seen status
+            await Conversation.updateOne(
+                { _id: conversationId },
+                { $set: { "lastMessage.seen": true } }
+            );
+        } catch (error) {
+            console.log("error in markMessagesAsSeen", error);
+        }
+    });
 
 
 

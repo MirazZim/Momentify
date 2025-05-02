@@ -24,6 +24,33 @@ const ChatPage = () => {
     // Access socket and onlineUsers from the socket context
     const {socket, onlineUsers } = useSocket();
 
+
+
+
+    useEffect(() => {
+          // Listen for messagesSeen event to update conversation's lastMessage seen status
+		socket?.on("messagesSeen", ({ conversationId }) => {
+			setConversations((prev) => {
+				const updatedConversations = prev.map((conversation) => {
+					if (conversation._id === conversationId) {
+						return {
+							...conversation,
+							lastMessage: {
+								...conversation.lastMessage,
+								seen: true,
+							},
+						};
+					}
+					return conversation;
+				});
+				return updatedConversations;
+			});
+		});
+	}, [socket, setConversations]);
+
+
+
+
     // Initialize originalConversations when conversations are first loaded
     useEffect(() => {
         const getConversations = async () => {
