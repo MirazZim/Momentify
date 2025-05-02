@@ -1,6 +1,7 @@
 import Conversation from "../models/conversationModel.js";
 import { v2 as cloudinary } from "cloudinary";
 import Message from "../models/messageModel.js";
+import { getRecipientSocketId, io } from "../socket/socket.js";
 
 
 
@@ -59,11 +60,16 @@ async function sendMessage(req, res) {
             }),
         ]);
 
-        // const recipientSocketId = getRecipientSocketId(recipientId);
-        // if (recipientSocketId) {
-        // 	// Send the new message to the recipient's socket
-        // 	io.to(recipientSocketId).emit("newMessage", newMessage);
-        // }
+        /* Implementing Socket for RealTime New Message */
+
+
+        //1. Get the socket ID of the recipient using their user ID
+        const recipientSocketId = getRecipientSocketId(recipientId);
+        //2. If the recipient is online, send the new message to their socket
+        if (recipientSocketId) {
+        	//3. Send the new message to the recipient's socket
+        	io.to(recipientSocketId).emit("newMessage", newMessage);
+        }
 
         res.status(201).json(newMessage);
     } catch (error) {
