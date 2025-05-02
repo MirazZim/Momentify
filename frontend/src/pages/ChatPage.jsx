@@ -9,6 +9,7 @@ import { conversationsAtom, selectedConversationAtom } from '../../atoms/message
 import { GiConversation } from 'react-icons/gi';
 import { CloseIcon } from '@chakra-ui/icons';
 import userAtom from '../../atoms/userAtom.js';
+import { useSocket } from '../../context/SocketContext.jsx';
 
 const ChatPage = () => {
     const [searchText, setSearchText] = useState("");
@@ -20,6 +21,8 @@ const ChatPage = () => {
     const currentUser = useRecoilValue(userAtom);
     const showToast = useShowToast();
     const { colorMode } = useColorMode();
+    // Access socket and onlineUsers from the socket context
+    const {socket, onlineUsers } = useSocket();
 
     // Initialize originalConversations when conversations are first loaded
     useEffect(() => {
@@ -249,9 +252,12 @@ const ChatPage = () => {
                             No conversations available
                         </Text>
                     ) : (
+                        /*  Render conversations, checking if each participant is online */
                         !loadingConversations &&
                         conversations.map((conversation) => (
-                            <Conversations key={conversation._id} conversation={conversation} />
+                            <Conversations key={conversation._id}
+                            isOnline={onlineUsers.includes(conversation.participants[0]._id)}
+                            conversation={conversation} />
                         ))
                     )}
                 </Flex>

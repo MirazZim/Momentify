@@ -14,6 +14,7 @@ export const useSocket = () => {
 // Provider component to manage socket connection
 export const SocketContextProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
+    const [onlineUsers, setOnlineUsers] = useState([]);
     
     const user = useRecoilValue(userAtom);
 
@@ -29,13 +30,26 @@ export const SocketContextProvider = ({ children }) => {
         // Store socket instance in state
         setSocket(socket);
 
+
+
+        /* Online Users */
+        // Listen for "getOnlineUsers" event from the server and update state
+        socket.on("getOnlineUsers", (users) => {
+            setOnlineUsers(users);
+        });
+        
+
+
+
         // Cleanup: Disconnect socket when component unmounts
         return () => socket && socket.close();
     }, [user?._id]); // Re-run effect if user ID changes
 
+    console.log("onlineUsers", onlineUsers);
+
     // Provide socket instance to children components
     return (
-        <SocketContext.Provider value={{ socket }}>
+        <SocketContext.Provider value={{ socket, onlineUsers }}>
             {children}
         </SocketContext.Provider>
     );

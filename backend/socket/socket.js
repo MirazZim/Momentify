@@ -3,19 +3,54 @@ import http from "http";
 import express from "express";
 
 const app = express();
+
+// Create an HTTP server to attach Socket.IO
 const server = http.createServer(app);
+
+// Initialize Socket.IO server with CORS configuration
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"],
+        origin: "http://localhost:3000", // Allow frontend origin
+        methods: ["GET", "POST"], // Allowed HTTP methods
     },
 });
 
+// Store user IDs mapped to their socket IDs
+const userSocketMap = {}
+
+// Handle new socket connections
 io.on("connection", (socket) => {
+    // Log the unique socket ID when a user connects
     console.log("a user connected", socket.id);
 
+
+  
+    /* Online Users */
+
+    //1. Extract userId from socket handshake query
+    const userId = socket.handshake.query.userId;
+    //2. If userId is valid, map it to the socket ID
+    if(userId != "undefined")  userSocketMap[userId] = socket.id;
+    //3. Broadcast the list of online users to all connected clients
+    io.emit("getOnlineUsers", Object.keys(userSocketMap));
+
+
+
+
+
+
+    // Handle user disconnection
     socket.on("disconnect", () => {
+        // Log the socket ID of the disconnected user
         console.log("user disconnected", socket.id);
+
+
+          
+        /* Disconnect Online Users */
+        //1. When a user disconnects, remove their ID from the map
+        delete userSocketMap[userId];
+        //2. Update all clients with the new list of online users
+        io.emit("getOnlineUsers", Object.keys(userSocketMap));
     });
 });
 
