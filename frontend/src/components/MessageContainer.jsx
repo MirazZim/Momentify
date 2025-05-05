@@ -18,7 +18,6 @@ const MessageContainer = () => {
   const messageEndRef = useRef(null);
   const { socket } = useSocket();
   const { colorMode } = useColorMode();
- 
 
   useEffect(() => {
     socket.on("newMessage", (message) => {
@@ -100,57 +99,68 @@ const MessageContainer = () => {
 
   return (
     <Flex
-    flex='70'
-    bg={colorMode === "light" ? "gray.200" : "gray.700"}
-    borderRadius={"md"}
-    p={3}
-    flexDirection={"column"}
->
-    {/* Message header */}
-    <Flex w={"full"} h={12} alignItems={"center"} gap={2}>
-        <Avatar src={selectedConversation.userProfilePic} size={"sm"} />
-        <Text display={"flex"} alignItems={"center"}>
-            {selectedConversation.username} <Image src='/verified.png' w={4} h={4} ml={1} />
+      flex="70"
+      bg={colorMode === "light" ? "gray.200" : "gray.700"}
+      borderRadius="md"
+      p={3}
+      flexDirection="column"
+    >
+      <Flex w="full" h={12} alignItems="center" gap={2}>
+        <Avatar src={selectedConversation.userProfilePic} size="sm" />
+        <Text display="flex" alignItems="center">
+          {selectedConversation.username}{" "}
+          <Image src="/verified.png" w={4} h={4} ml={1} />
         </Text>
-    </Flex>
+      </Flex>
 
-    <Divider />
+      <Divider />
 
-    <Flex flexDir={"column"} gap={4} my={4} p={2} height={"450px"} overflowY={"auto"}>
+      <Flex
+        flexDir="column"
+        gap={4}
+        my={4}
+        p={2}
+        height="450px"
+        overflowY="auto"
+      >
         {loadingMessages &&
-            [...Array(5)].map((_, i) => (
-                <Flex
-                    key={i}
-                    gap={2}
-                    alignItems={"center"}
-                    p={1}
-                    borderRadius={"md"}
-                    alignSelf={i % 2 === 0 ? "flex-start" : "flex-end"}
-                >
-                    {i % 2 === 0 && <SkeletonCircle size={7} />}
-                    <Flex flexDir={"column"} gap={2}>
-                        <Skeleton h='8px' w='250px' />
-                        <Skeleton h='8px' w='250px' />
-                        <Skeleton h='8px' w='250px' />
-                    </Flex>
-                    {i % 2 !== 0 && <SkeletonCircle size={7} />}
-                </Flex>
-            ))}
+          [...Array(5)].map((_, i) => (
+            <Flex
+              key={i}
+              gap={2}
+              alignItems="center"
+              p={1}
+              borderRadius="md"
+              alignSelf={i % 2 === 0 ? "flex-start" : "flex-end"}
+            >
+              {i % 2 === 0 && <SkeletonCircle size={7} />}
+              <Flex flexDir="column" gap={2}>
+                <Skeleton h="8px" w="250px" />
+                <Skeleton h="8px" w="250px" />
+                <Skeleton h="8px" w="250px" />
+              </Flex>
+              {i % 2 !== 0 && <SkeletonCircle size={7} />}
+            </Flex>
+          ))}
 
         {!loadingMessages &&
-            messages.map((message) => (
-                <Flex
-                    key={message._id}
-                    direction={"column"}
-                    ref={messages.length - 1 === messages.indexOf(message) ? messageEndRef : null}
-                >
-                    <Message message={message} ownMessage={currentUser._id === message.sender} />
-                </Flex>
-            ))}
-    </Flex>
+          messages.map((message) => (
+            <Flex
+              key={message._id}
+              direction="column"
+              ref={messages.length - 1 === messages.indexOf(message) ? messageEndRef : null}
+            >
+              <Message
+                message={message}
+                ownMessage={currentUser._id === message.sender}
+                messages={messages} // Pass the messages array
+              />
+            </Flex>
+          ))}
+      </Flex>
 
-    <MessageInput setMessages={setMessages} />
-</Flex>
+      <MessageInput setMessages={setMessages} />
+    </Flex>
   );
 };
 
