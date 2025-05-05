@@ -11,6 +11,13 @@ const Conversations = ({ conversation, isOnline }) => {
   const lastMessage = conversation.lastMessage;
   const [selectedConversation, setSelectedConversation] = useRecoilState(selectedConversationAtom);
 
+  // Get color mode once at the top level
+  const { colorMode } = useColorMode();
+  // Get all color values unconditionally
+  const hoverBg = useColorModeValue('gray.600', 'gray.dark');
+  const selectedBgLight = useColorModeValue('gray.400', 'gray.dark');
+  const unseenBgLight = useColorModeValue('gray.200', 'gray.700');
+
   // Determine if the conversation is unseen
   const isUnseen = currentUser._id !== lastMessage.sender && !lastMessage.seen && selectedConversation?._id !== conversation._id;
 
@@ -19,12 +26,20 @@ const Conversations = ({ conversation, isOnline }) => {
     try {
       const response = await fetch(`/api/conversations/${conversation._id}/mark-as-seen`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
       });
-      if (!response.ok) {
-        console.error('Failed to mark conversation as seen');
+
+      if (response.ok) {
+        // Update local conversation state
+        setConversations(prev => prev.map(conv => {
+          if (conv._id === conversation._id) {
+            return {
+              ...conv,
+              lastMessage: { ...conv.lastMessage, seen: true }
+            };
+          }
+          return conv;
+        }));
       }
     } catch (error) {
       console.error('Error marking conversation as seen:', error);
@@ -38,7 +53,7 @@ const Conversations = ({ conversation, isOnline }) => {
       p={'1'}
       _hover={{
         cursor: 'pointer',
-        bg: useColorModeValue('gray.600', 'gray.dark'),
+        bg: hoverBg,
         color: 'white',
       }}
       borderRadius="md"
@@ -50,17 +65,17 @@ const Conversations = ({ conversation, isOnline }) => {
           username: user.username,
         });
         if (isUnseen) {
-          markAsSeen(); // Mark the conversation as seen when opened
+          markAsSeen();
         }
       }}
       bg={
         selectedConversation?._id === conversation._id
-          ? useColorMode().colorMode === 'light'
-            ? 'gray.400'
+          ? colorMode === 'light'
+            ? selectedBgLight
             : 'gray.dark'
           : isUnseen
-            ? useColorMode().colorMode === 'light'
-              ? 'gray.200'
+            ? colorMode === 'light'
+              ? unseenBgLight
               : 'gray.700'
             : ''
       }
@@ -79,14 +94,16 @@ const Conversations = ({ conversation, isOnline }) => {
       </WrapItem>
 
       <Stack direction={'column'} fontSize={'sm'}>
+        {/* Username line */}
         <Text
-          fontWeight={isUnseen ? '700' : '500'} // Bold for unseen conversations
+          fontWeight={isUnseen ? '700' : '500'}
           display={'flex'}
           alignItems={'center'}
+          as="span" // Prevent <p> tag nesting issues
         >
           {user.username}
           <Image src="/verified.png" w={4} h={4} ml={1} />
-          {/* // Blue dot for unseen conversations */}
+          {/* Blue dot for unseen conversations */}
           {isUnseen && (
             <Box
               ml={2}
@@ -97,19 +114,18 @@ const Conversations = ({ conversation, isOnline }) => {
             />
           )}
         </Text>
+
+        {/* Last message line */}
         <Text
           fontSize={'xs'}
           display={'flex'}
           alignItems={'center'}
           gap={1}
-          fontWeight={isUnseen ? '600' : 'normal'} // Bold last message for unseen
         >
-          {currentUser._id === lastMessage.sender ? (
-            <Box color={lastMessage.seen ? 'blue.400' : ''}>
+          {currentUser._id === lastMessage.sender && (
+            <Box color={lastMessage.seen ? 'blue.400' : 'gray.400'}>
               <BsCheck2All size={16} />
             </Box>
-          ) : (
-            ''
           )}
           {lastMessage.text.length > 18
             ? lastMessage.text.substring(0, 18) + '...'

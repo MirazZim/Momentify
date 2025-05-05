@@ -53,19 +53,24 @@ const MessageContainer = () => {
       });
     }
 
-    socket.on("messagesSeen", ({ conversationId }) => {
-      if (selectedConversation._id === conversationId) {
-        setMessages((prev) => {
-          const updatedMessages = prev.map((message) => {
-            if (!message.seen) {
-              return { ...message, seen: true };
-            }
-            return message;
-          });
-          return updatedMessages;
-        });
+    // Inside the socket.on("messagesSeen") handler
+socket.on("messagesSeen", ({ conversationId }) => {
+  if (selectedConversation._id === conversationId) {
+    // Update messages
+    setMessages(prev => prev.map(msg => ({ ...msg, seen: true })));
+    
+    // Update conversations atom
+    setConversations(prev => prev.map(conv => {
+      if (conv._id === conversationId) {
+        return {
+          ...conv,
+          lastMessage: { ...conv.lastMessage, seen: true }
+        };
       }
-    });
+      return conv;
+    }));
+  }
+});
 
     return () => socket.off("messagesSeen");
   }, [socket, currentUser._id, messages, selectedConversation]);
