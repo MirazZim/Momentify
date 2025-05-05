@@ -1,90 +1,93 @@
-import { Flex, Input, InputGroup, InputRightElement, IconButton, useColorModeValue } from "@chakra-ui/react";
+import { Flex, Input, InputGroup, InputRightElement, IconButton, Spinner, ModalHeader } from "@chakra-ui/react";
 import { BsFillImageFill } from "react-icons/bs";
 import { IoSendSharp } from "react-icons/io5";
-import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useDisclosure } from "@chakra-ui/react";
+import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, useDisclosure } from "@chakra-ui/react";
 import { Image, Button } from "@chakra-ui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { conversationsAtom, selectedConversationAtom } from "../../atoms/messagesAtom";
+import usePreviewImg from "../hooks/usePreviewImg";
+import { useColorModeValue } from "@chakra-ui/react";
 
 const MessageInput = ({ setMessages }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedImage, setSelectedImage] = useState(null);
-  const bgColor = useColorModeValue("white", "gray.800");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
-
   const [messageText, setMessageText] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const showToast = useShowToast();
   const selectedConversation = useRecoilValue(selectedConversationAtom);
   const setConversations = useSetRecoilState(conversationsAtom);
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedImage(URL.createObjectURL(file));
-      onOpen();
-    }
-  };
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const imageRef = useRef(null);
+  const { handleImageChange, imgUrl, setImgUrl } = usePreviewImg();
+  const bgColor = useColorModeValue("white", "gray.800");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!messageText) return;
+    if (!messageText && !imgUrl) return;
+    if (isSending) return;
+
+    setIsSending(true);
+
     try {
       const res = await fetch("/api/messages", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({
-					message: messageText,
-					recipientId: selectedConversation.userId,
-				}),
-			});
-			const data = await res.json();
-			if (data.error) {
-				showToast("Error", data.error, "error");
-				return;
-			}
-			console.log(data);
-			setMessages((messages) => [...messages, data]);
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: messageText,
+          recipientId: selectedConversation.userId,
+          img: imgUrl,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) {
+        showToast("Error", data.error, "error");
+        return;
+      }
+
+      setMessages((messages) => [...messages, data]);
 
       setConversations((prevConvs) => {
-				const updatedConversations = prevConvs.map((conversation) => {
-					if (conversation._id === selectedConversation._id) {
-						return {
-							...conversation,
-							lastMessage: {
-								text: messageText,
-								sender: data.sender,
-							},
-						};
-					}
-					return conversation;
-				});
-				return updatedConversations;
-			});
+        const updatedConversations = prevConvs.map((conversation) => {
+          if (conversation._id === selectedConversation._id) {
+            return {
+              ...conversation,
+              lastMessage: {
+                text: messageText || "Image",
+                sender: data.sender,
+              },
+            };
+          }
+          return conversation;
+        });
+        return updatedConversations;
+      });
 
-
-    setMessageText("");
-    
+      setMessageText("");
+      setImgUrl("");
+      onClose();
     } catch (error) {
       showToast("Error", error.message, "error");
-    }    
-  }
+    } finally {
+      setIsSending(false);
+    }
+  };
+
   return (
     <Flex
       gap={2}
       alignItems="center"
-      p={2}
+      p={1}
       bg={bgColor}
-      borderRadius="lg"
-      borderWidth="1px"
+      borderRadius="xl"
+      
       borderColor={borderColor}
       boxShadow="sm"
       _hover={{ boxShadow: "md" }}
       transition="all 0.2s"
-    > 
+    >
       <form onSubmit={handleSendMessage} style={{ flex: 95 }}>
         <InputGroup>
           <Input
@@ -95,12 +98,13 @@ const MessageInput = ({ setMessages }) => {
             borderRadius="full"
             py={2}
             px={4}
+            fontSize="sm"
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
             _focus={{ boxShadow: "outline", bg: useColorModeValue("white", "gray.600") }}
             _hover={{ bg: useColorModeValue("gray.200", "gray.600") }}
-            onChange={(e) => setMessageText(e.target.value)}
-						value={messageText}
           />
-          <InputRightElement  onClick={handleSendMessage} cursor={"pointer"}>
+          <InputRightElement>
             <IconButton
               aria-label="Send message"
               icon={<IoSendSharp />}
@@ -108,6 +112,8 @@ const MessageInput = ({ setMessages }) => {
               colorScheme="teal"
               size="sm"
               borderRadius="full"
+              isLoading={isSending}
+              onClick={handleSendMessage}
               _hover={{ bg: useColorModeValue("teal.100", "teal.900") }}
             />
           </InputRightElement>
@@ -123,18 +129,28 @@ const MessageInput = ({ setMessages }) => {
           size="sm"
           borderRadius="full"
           _hover={{ bg: useColorModeValue("teal.100", "teal.900") }}
-          as="label"
-        >
-          <Input
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handleImageChange}
-          />
-        </IconButton>
+          onClick={() => imageRef.current.click()}
+        />
+        <Input
+          type="file"
+          accept="image/*"
+          hidden
+          ref={imageRef}
+          onChange={(e) => {
+            handleImageChange(e);
+            if (e.target.files[0]) onOpen();
+          }}
+        />
       </Flex>
 
-      <Modal isOpen={isOpen} onClose={() => { setSelectedImage(null); onClose(); }} isCentered>
+      <Modal
+        isOpen={isOpen}
+        onClose={() => {
+          setImgUrl("");
+          onClose();
+        }}
+        isCentered
+      >
         <ModalOverlay bg="blackAlpha.600" />
         <ModalContent
           bg={bgColor}
@@ -149,9 +165,9 @@ const MessageInput = ({ setMessages }) => {
           <ModalCloseButton />
           <ModalBody p={4}>
             <Flex mt={2} w="full" justifyContent="center">
-              {selectedImage && (
+              {imgUrl && (
                 <Image
-                  src={selectedImage}
+                  src={imgUrl}
                   alt="Selected preview"
                   maxH="400px"
                   objectFit="contain"
@@ -165,14 +181,18 @@ const MessageInput = ({ setMessages }) => {
                 size="sm"
                 variant="outline"
                 colorScheme="gray"
-                onClick={() => { setSelectedImage(null); onClose(); }}
+                onClick={() => {
+                  setImgUrl("");
+                  onClose();
+                }}
               >
                 Cancel
               </Button>
               <Button
                 size="sm"
                 colorScheme="teal"
-                onClick={() => { /* Handle image send logic */ onClose(); }}
+                isLoading={isSending}
+                onClick={handleSendMessage}
               >
                 Send
               </Button>
