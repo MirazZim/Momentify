@@ -94,38 +94,22 @@ const Conversations = ({ conversation, isOnline }) => {
       </WrapItem>
 
       <Stack direction={'column'} fontSize={'sm'}>
-        {/* Username line */}
-        <Text
-          fontWeight={isUnseen ? '700' : '500'}
-          display={'flex'}
-          alignItems={'center'}
-          as="span" // Prevent <p> tag nesting issues
-        >
+        {/* Username line remains the same */}
+        <Text fontWeight={isUnseen ? '700' : '500'} display={'flex'} alignItems={'center'} as="span">
           {user.username}
           <Image src="/verified.png" w={4} h={4} ml={1} />
-          {/* Blue dot for unseen conversations */}
-          {isUnseen && (
-            <Box
-              ml={2}
-              w={2}
-              h={2}
-              borderRadius="full"
-              bg="blue.500"
-            />
-          )}
+          {isUnseen && <Box ml={2} w={2} h={2} borderRadius="full" bg="blue.500" />}
         </Text>
 
-        {/* Last message line */}
-        <Text
-          fontSize={'xs'}
-          display={'flex'}
-          alignItems={'center'}
-          gap={1}
-        >
+        {/* Updated last message line */}
+        <Text fontSize={'xs'} display={'flex'} alignItems={'center'} gap={1}>
           {currentUser._id === lastMessage.sender && (
-            <Box color={lastMessage.seen ? 'blue.400' : 'gray.400'}>
-              <BsCheck2All size={16} />
-            </Box>
+            <>
+              <Box color={lastMessage.seen ? 'blue.400' : 'gray.400'}>
+                <BsCheck2All size={16} />
+              </Box>
+              <Text as="span">You: </Text>
+            </>
           )}
           {lastMessage.text.length > 18
             ? lastMessage.text.substring(0, 18) + '...'
