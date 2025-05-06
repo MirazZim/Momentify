@@ -1,64 +1,43 @@
-import { 
-  Avatar, 
-  Box, 
-  Flex, 
-  Image, 
-  Skeleton, 
-  Text, 
-  Modal, 
-  ModalOverlay, 
-  ModalContent, 
-  ModalBody, 
-  IconButton, 
+import {
+  Avatar,
+  Box,
+  Flex,
+  Image,
+  Skeleton,
+  Text,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  IconButton,
   ModalCloseButton,
   Popover,
   PopoverTrigger,
   PopoverContent,
   PopoverBody,
-  Button
+  Button,
 } from "@chakra-ui/react";
 import { useRecoilValue } from "recoil";
 import { BsCheck2All, BsArrowLeft, BsArrowRight } from "react-icons/bs";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { selectedConversationAtom } from "../../atoms/messagesAtom";
 import userAtom from "../../atoms/userAtom";
 import { Smile } from "react-feather";
 import { useSocket } from "../../context/SocketContext";
 
-const Message = ({ ownMessage, message, messages, setMessages }) => {
+const Message = ({ ownMessage, message }) => {
   const selectedConversation = useRecoilValue(selectedConversationAtom);
   const user = useRecoilValue(userAtom);
   const { socket } = useSocket();
   const [imgLoaded, setImgLoaded] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Filter messages to only include those with images
-  const imageMessages = messages.filter((m) => m.img);
 
   const handleImageClick = (imgUrl) => {
     setPreviewImage(imgUrl);
-    const index = imageMessages.findIndex((m) => m.img === imgUrl);
-    setCurrentIndex(index);
   };
 
   const handleClosePreview = () => {
     setPreviewImage(null);
-    setCurrentIndex(0);
-  };
-
-  const handleNext = () => {
-    if (imageMessages.length === 0) return;
-    const nextIndex = (currentIndex + 1) % imageMessages.length;
-    setCurrentIndex(nextIndex);
-    setPreviewImage(imageMessages[nextIndex]?.img || null);
-  };
-
-  const handlePrev = () => {
-    if (imageMessages.length === 0) return;
-    const prevIndex = (currentIndex - 1 + imageMessages.length) % imageMessages.length;
-    setCurrentIndex(prevIndex);
-    setPreviewImage(imageMessages[prevIndex]?.img || null);
   };
 
   const handleReaction = async (emoji) => {
@@ -81,21 +60,6 @@ const Message = ({ ownMessage, message, messages, setMessages }) => {
       console.error("Error adding reaction:", error);
     }
   };
-
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleMessageReaction = (updatedMessage) => {
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg._id === updatedMessage._id ? updatedMessage : msg
-        )
-      );
-    };
-
-    socket.on("messageReaction", handleMessageReaction);
-    return () => socket.off("messageReaction", handleMessageReaction);
-  }, [socket, setMessages]);
 
   const renderReceivedMessage = () => (
     <Flex align="center" position="relative" _hover={{ "& .reaction-button": { opacity: 1 } }}>
@@ -147,7 +111,6 @@ const Message = ({ ownMessage, message, messages, setMessages }) => {
             position="absolute"
             bottom="0"
             right="-2"
-            
             transform="translateY(50%)"
             bg="gray.300"
             borderRadius="md"
@@ -156,14 +119,14 @@ const Message = ({ ownMessage, message, messages, setMessages }) => {
             <Flex gap={1}>
               {message.reactions.map((reaction, index) => (
                 <Text key={index} fontSize="sm">
-                  {reaction.emoji} 
+                  {reaction.emoji}
                 </Text>
               ))}
             </Flex>
           </Box>
         )}
       </Flex>
-      <Box 
+      <Box
         className="reaction-button"
         opacity={0}
         transition="opacity 0.2s"
@@ -171,9 +134,9 @@ const Message = ({ ownMessage, message, messages, setMessages }) => {
       >
         <Popover placement="top" isLazy>
           <PopoverTrigger>
-            <Button 
-              size="sm" 
-              variant="ghost" 
+            <Button
+              size="sm"
+              variant="ghost"
               p={1}
               minW="auto"
               h="auto"
@@ -187,8 +150,8 @@ const Message = ({ ownMessage, message, messages, setMessages }) => {
           <PopoverContent width="auto">
             <PopoverBody>
               <Flex gap={1}>
-                {["👍", "❤️", "😂", "😮", "😢", "🙏"].map(emoji => (
-                  <Box 
+                {["👍", "❤️", "😂", "😮", "😢", "🙏"].map((emoji) => (
+                  <Box
                     key={emoji}
                     cursor="pointer"
                     fontSize="xl"
@@ -265,7 +228,6 @@ const Message = ({ ownMessage, message, messages, setMessages }) => {
             position="absolute"
             bottom="0"
             right="0"
-            
             transform="translateY(50%)"
             bg="green.700"
             borderRadius="md"
@@ -274,7 +236,7 @@ const Message = ({ ownMessage, message, messages, setMessages }) => {
             <Flex gap={1}>
               {message.reactions.map((reaction, index) => (
                 <Text key={index} fontSize="sm" color="white">
-                  {reaction.emoji} 
+                  {reaction.emoji}
                 </Text>
               ))}
             </Flex>
@@ -302,22 +264,13 @@ const Message = ({ ownMessage, message, messages, setMessages }) => {
             right="20px"
             zIndex={10}
           />
-          <ModalBody p={0} display="flex" justifyContent="center" alignItems="center" height="100vh">
-            {imageMessages.length > 1 && (
-              <IconButton
-                aria-label="Previous image"
-                icon={<BsArrowLeft />}
-                onClick={handlePrev}
-                position="absolute"
-                left="20px"
-                top="50%"
-                transform="translateY(-50%)"
-                color="white"
-                bg="rgba(0, 0, 0, 0.5)"
-                _hover={{ bg: "rgba(0, 0, 0, 0.7)" }}
-                zIndex={10}
-              />
-            )}
+          <ModalBody
+            p={0}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            height="100vh"
+          >
             <Image
               src={previewImage}
               alt="Full-screen preview"
@@ -326,21 +279,6 @@ const Message = ({ ownMessage, message, messages, setMessages }) => {
               objectFit="contain"
               borderRadius="md"
             />
-            {imageMessages.length > 1 && (
-              <IconButton
-                aria-label="Next image"
-                icon={<BsArrowRight />}
-                onClick={handleNext}
-                position="absolute"
-                right="20px"
-                top="50%"
-                transform="translateY(-50%)"
-                color="white"
-                bg="rgba(0, 0, 0, 0.5)"
-                _hover={{ bg: "rgba(0, 0, 0, 0.7)" }}
-                zIndex={10}
-              />
-            )}
           </ModalBody>
         </ModalContent>
       </Modal>

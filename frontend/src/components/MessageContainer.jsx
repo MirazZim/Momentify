@@ -1,4 +1,15 @@
-import { Flex, Divider, Avatar, Text, Skeleton, SkeletonCircle, useColorModeValue, Image, useColorMode, Box } from "@chakra-ui/react";
+import {
+  Flex,
+  Divider,
+  Avatar,
+  Text,
+  Skeleton,
+  SkeletonCircle,
+  useColorModeValue,
+  Image,
+  useColorMode,
+  Box,
+} from "@chakra-ui/react";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
 import { useEffect, useRef, useState } from "react";
@@ -9,11 +20,10 @@ import userAtom from "../../atoms/userAtom";
 import { useSocket } from "../../context/SocketContext";
 import { keyframes } from "@emotion/react";
 
-
 const typingAnimation = keyframes`
   0% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
-  100% { transform: translateY(0); }
+  100% { transform: translateBERY(0); }
 `;
 
 const MessageContainer = () => {
@@ -30,8 +40,7 @@ const MessageContainer = () => {
   const [isTyping, setIsTyping] = useState(false);
   const typingIndicatorRef = useRef(null);
 
-
-  //animation strings
+  // Animation strings
   const typingDot1 = `${typingAnimation} 1s infinite`;
   const typingDot2 = `${typingAnimation} 1s infinite 0.2s`;
   const typingDot3 = `${typingAnimation} 1s infinite 0.4s`;
@@ -72,16 +81,18 @@ const MessageContainer = () => {
 
     socket.on("messagesSeen", ({ conversationId }) => {
       if (selectedConversation._id === conversationId) {
-        setMessages(prev => prev.map(msg => ({ ...msg, seen: true })));
-        setConversations(prev => prev.map(conv => {
-          if (conv._id === conversationId) {
-            return {
-              ...conv,
-              lastMessage: { ...conv.lastMessage, seen: true }
-            };
-          }
-          return conv;
-        }));
+        setMessages((prev) => prev.map((msg) => ({ ...msg, seen: true })));
+        setConversations((prev) =>
+          prev.map((conv) => {
+            if (conv._id === conversationId) {
+              return {
+                ...conv,
+                lastMessage: { ...conv.lastMessage, seen: true },
+              };
+            }
+            return conv;
+          })
+        );
       }
     });
 
@@ -91,7 +102,6 @@ const MessageContainer = () => {
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
 
   useEffect(() => {
     // Scroll to bottom when messages change OR when typing status changes
@@ -103,7 +113,6 @@ const MessageContainer = () => {
       }
     }
   }, [messages, isTyping]);
-
 
   useEffect(() => {
     const getMessages = async () => {
@@ -143,9 +152,9 @@ const MessageContainer = () => {
   useEffect(() => {
     socket.on("messageReaction", (updatedMessage) => {
       console.log("Received messageReaction in MessageContainer.jsx:", updatedMessage);
-      setMessages(prev => prev.map(msg => 
-        msg._id === updatedMessage._id ? updatedMessage : msg
-      ));
+      setMessages((prev) =>
+        prev.map((msg) => (msg._id === updatedMessage._id ? updatedMessage : msg))
+      );
     });
     return () => socket.off("messageReaction");
   }, [socket]);
@@ -210,7 +219,6 @@ const MessageContainer = () => {
                 <Message
                   message={message}
                   ownMessage={currentUser._id === message.sender}
-                  messages={messages}
                 />
               </Flex>
             ))}
@@ -221,25 +229,25 @@ const MessageContainer = () => {
                 <Avatar src={selectedConversation.userProfilePic} w="7" h={7} />
                 <Flex bg="gray.400" p={2} borderRadius="md" alignSelf="flex-start">
                   <Flex gap={1}>
-                    <Box 
-                      w="8px" 
-                      h="8px" 
-                      bg="gray.500" 
-                      borderRadius="full" 
+                    <Box
+                      w="8px"
+                      h="8px"
+                      bg="gray.500"
+                      borderRadius="full"
                       animation={typingDot1}
                     />
-                    <Box 
-                      w="8px" 
-                      h="8px" 
-                      bg="gray.500" 
-                      borderRadius="full" 
+                    <Box
+                      w="8px"
+                      h="8px"
+                      bg="gray.500"
+                      borderRadius="full"
                       animation={typingDot2}
                     />
-                    <Box 
-                      w="8px" 
-                      h="8px" 
-                      bg="gray.500" 
-                      borderRadius="full" 
+                    <Box
+                      w="8px"
+                      h="8px"
+                      bg="gray.500"
+                      borderRadius="full"
                       animation={typingDot3}
                     />
                   </Flex>
@@ -251,7 +259,6 @@ const MessageContainer = () => {
       </Flex>
 
       <MessageInput setMessages={setMessages} />
-
     </Flex>
   );
 };
