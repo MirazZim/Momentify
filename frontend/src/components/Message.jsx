@@ -67,7 +67,7 @@ const Message = ({ ownMessage, message }) => {
       <Flex direction="column" position="relative">
         <Flex
           bg="gray.400"
-          p={3}
+          p={2}
           borderRadius="lg"
           maxW="350px"
           position="relative"
@@ -173,21 +173,32 @@ const Message = ({ ownMessage, message }) => {
   const renderSentMessage = () => (
     <Flex gap={2} alignSelf="flex-end">
       <Flex direction="column" position="relative">
-        <Flex bg="green.800" maxW="350px" p={3} borderRadius="lg">
-          {message.text && (
+
+        {/* Render text bubble only if text exists */}
+        {message.text && (
+          <Flex 
+          bg="green.800" 
+          maxW="350px" 
+          p={2} 
+          borderRadius="lg">
+            
             <Text color="white">{message.text}</Text>
-          )}
-          <Box
-            alignSelf="flex-end"
-            ml={1}
-            color={message.seen ? "blue.400" : ""}
-            fontWeight="bold"
-          >
-            <BsCheck2All size={16} />
-          </Box>
-        </Flex>
+            {/* Show checkmark in text bubble only if no image */}
+            {!message.img && (
+              <Box
+                alignSelf="flex-end"
+                ml={1}
+                color={message.seen ? "blue.400" : ""}
+                fontWeight="bold"
+              >
+                <BsCheck2All size={16} />
+              </Box>
+            )}
+          </Flex>
+        )}
+        {/* Image rendering */}
         {message.img && !imgLoaded && (
-          <Flex mt={2} w="200px">
+          <Flex mt={message.text ? 2 : 0} w="200px">
             <Image
               src={message.img}
               hidden
@@ -200,7 +211,7 @@ const Message = ({ ownMessage, message }) => {
         )}
         {message.img && imgLoaded && (
           <Flex
-            mt={2}
+            mt={message.text ? 2 : 0}
             w="200px"
             position="relative"
             onClick={() => handleImageClick(message.img)}
@@ -212,6 +223,7 @@ const Message = ({ ownMessage, message }) => {
               borderRadius={4}
               objectFit="contain"
             />
+            {/* Checkmark for image */}
             <Box
               position="absolute"
               bottom="5px"
