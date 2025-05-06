@@ -3,12 +3,13 @@ import { BsFillImageFill } from "react-icons/bs";
 import { IoSendSharp } from "react-icons/io5";
 import { Modal, ModalBody, ModalCloseButton, ModalContent, ModalOverlay, useDisclosure } from "@chakra-ui/react";
 import { Image, Button } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { conversationsAtom, selectedConversationAtom } from "../../atoms/messagesAtom";
 import usePreviewImg from "../hooks/usePreviewImg";
 import { useColorModeValue } from "@chakra-ui/react";
+import { useSocket } from "../../context/SocketContext";
 
 const MessageInput = ({ setMessages }) => {
   const [messageText, setMessageText] = useState("");
@@ -21,6 +22,12 @@ const MessageInput = ({ setMessages }) => {
   const { handleImageChange, imgUrl, setImgUrl } = usePreviewImg();
   const bgColor = useColorModeValue("white", "gray.800");
   const borderColor = useColorModeValue("gray.200", "gray.600");
+
+  //For Typing events
+  const { socket } = useSocket();
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef(null);
+
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -74,6 +81,64 @@ const MessageInput = ({ setMessages }) => {
       setIsSending(false);
     }
   };
+
+  // Handle typing events
+  useEffect(() => {
+    if (!messageText) {
+      if (isTyping) {
+        setIsTyping(false);
+        socket.emit("typing", { 
+          recipientId: selectedConversation.userId, 
+          isTyping: false 
+        });
+      }
+      return;
+    }
+
+    if (!isTyping) {
+      setIsTyping(true);
+      socket.emit("typing", { 
+        recipientId: selectedConversation.userId, 
+        isTyping: true 
+      });
+    }
+
+    // Clear previous timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set a new timeout
+    typingTimeoutRef.current = setTimeout(() => {
+      if (isTyping) {
+        setIsTyping(false);
+        socket.emit("typing", { 
+          recipientId: selectedConversation.userId, 
+          isTyping: false 
+        });
+      }
+    }, 3000); // 3 seconds of inactivity
+
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    };
+  }, [messageText, selectedConversation.userId, socket]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (isTyping) {
+        socket.emit("typing", { 
+          recipientId: selectedConversation.userId, 
+          isTyping: false 
+        });
+      }
+    };
+  }, [isTyping, selectedConversation.userId, socket]);
+
+
 
   return (
     <Flex

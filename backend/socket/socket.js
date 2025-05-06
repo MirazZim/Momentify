@@ -66,6 +66,18 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on("typing", ({ recipientId, isTyping }) => {
+        const recipientSocketId = getRecipientSocketId(recipientId);
+        if (recipientSocketId) {
+          io.to(recipientSocketId).emit("typing", {
+            senderId: socket.handshake.query.userId,
+            isTyping
+          });
+        }
+      });
+
+
+
 
 
 

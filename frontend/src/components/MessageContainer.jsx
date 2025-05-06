@@ -1,4 +1,4 @@
-import { Flex, Divider, Avatar, Text, Skeleton, SkeletonCircle, useColorModeValue, Image, useColorMode } from "@chakra-ui/react";
+import { Flex, Divider, Avatar, Text, Skeleton, SkeletonCircle, useColorModeValue, Image, useColorMode, Box } from "@chakra-ui/react";
 import Message from "./Message";
 import MessageInput from "./MessageInput";
 import { useEffect, useRef, useState } from "react";
@@ -7,6 +7,13 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { conversationsAtom, selectedConversationAtom } from "../../atoms/messagesAtom";
 import userAtom from "../../atoms/userAtom";
 import { useSocket } from "../../context/SocketContext";
+import { keyframes } from "@emotion/react";
+
+const typingAnimation = keyframes`
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+`;
 
 const MessageContainer = () => {
   const showToast = useShowToast();
@@ -18,6 +25,15 @@ const MessageContainer = () => {
   const messageEndRef = useRef(null);
   const { socket } = useSocket();
   const { colorMode } = useColorMode();
+
+  const [isTyping, setIsTyping] = useState(false);
+  const typingIndicatorRef = useRef(null);
+
+
+  //animation strings
+  const typingDot1 = `${typingAnimation} 1s infinite`;
+  const typingDot2 = `${typingAnimation} 1s infinite 0.2s`;
+  const typingDot3 = `${typingAnimation} 1s infinite 0.4s`;
 
   useEffect(() => {
     socket.on("newMessage", (message) => {
@@ -53,24 +69,20 @@ const MessageContainer = () => {
       });
     }
 
-    // Inside the socket.on("messagesSeen") handler
-socket.on("messagesSeen", ({ conversationId }) => {
-  if (selectedConversation._id === conversationId) {
-    // Update messages
-    setMessages(prev => prev.map(msg => ({ ...msg, seen: true })));
-    
-    // Update conversations atom
-    setConversations(prev => prev.map(conv => {
-      if (conv._id === conversationId) {
-        return {
-          ...conv,
-          lastMessage: { ...conv.lastMessage, seen: true }
-        };
+    socket.on("messagesSeen", ({ conversationId }) => {
+      if (selectedConversation._id === conversationId) {
+        setMessages(prev => prev.map(msg => ({ ...msg, seen: true })));
+        setConversations(prev => prev.map(conv => {
+          if (conv._id === conversationId) {
+            return {
+              ...conv,
+              lastMessage: { ...conv.lastMessage, seen: true }
+            };
+          }
+          return conv;
+        }));
       }
-      return conv;
-    }));
-  }
-});
+    });
 
     return () => socket.off("messagesSeen");
   }, [socket, currentUser._id, messages, selectedConversation]);
@@ -78,6 +90,19 @@ socket.on("messagesSeen", ({ conversationId }) => {
   useEffect(() => {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+
+  useEffect(() => {
+    // Scroll to bottom when messages change OR when typing status changes
+    if (messages.length > 0 || isTyping) {
+      if (isTyping) {
+        typingIndicatorRef.current?.scrollIntoView({ behavior: "smooth" });
+      } else {
+        messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [messages, isTyping]);
+
 
   useEffect(() => {
     const getMessages = async () => {
@@ -102,6 +127,18 @@ socket.on("messagesSeen", ({ conversationId }) => {
     getMessages();
   }, [showToast, selectedConversation.userId, selectedConversation.mock]);
 
+  useEffect(() => {
+    socket.on("typing", ({ senderId, isTyping: typingStatus }) => {
+      if (selectedConversation.userId === senderId) {
+        setIsTyping(typingStatus);
+      }
+    });
+
+    return () => {
+      socket.off("typing");
+    };
+  }, [socket, selectedConversation.userId]);
+
   return (
     <Flex
       flex="70"
@@ -120,6 +157,7 @@ socket.on("messagesSeen", ({ conversationId }) => {
 
       <Divider />
 
+      {/* Messages container */}
       <Flex
         flexDir="column"
         gap={4}
@@ -128,6 +166,7 @@ socket.on("messagesSeen", ({ conversationId }) => {
         height="450px"
         overflowY="auto"
       >
+        {/* Loading skeletons */}
         {loadingMessages &&
           [...Array(5)].map((_, i) => (
             <Flex
@@ -148,23 +187,60 @@ socket.on("messagesSeen", ({ conversationId }) => {
             </Flex>
           ))}
 
-        {!loadingMessages &&
-          messages.map((message) => (
-            <Flex
-              key={message._id}
-              direction="column"
-              ref={messages.length - 1 === messages.indexOf(message) ? messageEndRef : null}
-            >
-              <Message
-                message={message}
-                ownMessage={currentUser._id === message.sender}
-                messages={messages} // Pass the messages array
-              />
-            </Flex>
-          ))}
+        {/* Messages */}
+        {!loadingMessages && (
+          <>
+            {messages.map((message) => (
+              <Flex
+                key={message._id}
+                direction="column"
+                ref={messages.length - 1 === messages.indexOf(message) ? messageEndRef : null}
+              >
+                <Message
+                  message={message}
+                  ownMessage={currentUser._id === message.sender}
+                  messages={messages}
+                />
+              </Flex>
+            ))}
+
+            {/* Typing indicator */}
+            {isTyping && (
+              <Flex gap={2} ref={typingIndicatorRef}>
+                <Avatar src={selectedConversation.userProfilePic} w="7" h={7} />
+                <Flex bg="gray.400" p={2} borderRadius="md" alignSelf="flex-start">
+                  <Flex gap={1}>
+                    <Box 
+                      w="8px" 
+                      h="8px" 
+                      bg="gray.500" 
+                      borderRadius="full" 
+                      animation={typingDot1}
+                    />
+                    <Box 
+                      w="8px" 
+                      h="8px" 
+                      bg="gray.500" 
+                      borderRadius="full" 
+                      animation={typingDot2}
+                    />
+                    <Box 
+                      w="8px" 
+                      h="8px" 
+                      bg="gray.500" 
+                      borderRadius="full" 
+                      animation={typingDot3}
+                    />
+                  </Flex>
+                </Flex>
+              </Flex>
+            )}
+          </>
+        )}
       </Flex>
 
       <MessageInput setMessages={setMessages} />
+
     </Flex>
   );
 };
