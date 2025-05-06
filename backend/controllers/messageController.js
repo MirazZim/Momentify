@@ -6,6 +6,7 @@ import { getRecipientSocketId, io } from "../socket/socket.js";
 
 
 
+
 async function sendMessage(req, res) {
     try {
         const { recipientId, message } = req.body;
@@ -134,4 +135,56 @@ async function getConversations(req, res) {
 	}
 }
 
-export { sendMessage, getMessages, getConversations };
+async function addReaction(req, res) {
+    try {
+        const { messageId, emoji } = req.body;
+        const userId = req.user._id;
+
+        // Find the message
+        const message = await Message.findById(messageId);
+        if (!message) {
+            return res.status(404).json({ error: "Message not found" });
+        }
+
+        // Initialize reactions array if it doesn't exist
+        message.reactions = message.reactions || [];
+
+        // Check if the user already has any reaction
+        const userReactionIndex = message.reactions.findIndex(r => r.users.includes(userId));
+
+        if (userReactionIndex >= 0) {
+            // User already has a reaction, check if it's the same emoji (toggle off) or different (replace)
+            if (message.reactions[userReactionIndex].emoji === emoji) {
+                // Toggle off: remove the user's reaction
+                const userIndex = message.reactions[userReactionIndex].users.indexOf(userId);
+                message.reactions[userReactionIndex].users.splice(userIndex, 1);
+                if (message.reactions[userReactionIndex].users.length === 0) {
+                    message.reactions.splice(userReactionIndex, 1);
+                }
+            } else {
+                // Replace existing reaction with new emoji
+                message.reactions[userReactionIndex].emoji = emoji;
+                message.reactions[userReactionIndex].users = [userId]; // Reset users to only the current user
+            }
+        } else {
+            // User has no reaction, add the new one
+            message.reactions.push({ emoji, users: [userId] });
+        }
+
+        // Save the updated message
+        const updatedMessage = await message.save();
+
+        // Emit the updated message to all clients
+        const io = req.app.get('io');
+        if (!io) {
+            throw new Error("Socket.io instance not available");
+        }
+        io.emit('messageReaction', updatedMessage);
+
+        res.status(200).json({ success: true, message: updatedMessage });
+    } catch (error) {
+        console.error("Error in addReaction:", error);
+        res.status(500).json({ error: error.message });
+    }
+}
+export { sendMessage, getMessages, getConversations, addReaction };

@@ -9,6 +9,7 @@ import userAtom from "../../atoms/userAtom";
 import { useSocket } from "../../context/SocketContext";
 import { keyframes } from "@emotion/react";
 
+
 const typingAnimation = keyframes`
   0% { transform: translateY(0); }
   50% { transform: translateY(-5px); }
@@ -138,6 +139,16 @@ const MessageContainer = () => {
       socket.off("typing");
     };
   }, [socket, selectedConversation.userId]);
+
+  useEffect(() => {
+    socket.on("messageReaction", (updatedMessage) => {
+      console.log("Received messageReaction in MessageContainer.jsx:", updatedMessage);
+      setMessages(prev => prev.map(msg => 
+        msg._id === updatedMessage._id ? updatedMessage : msg
+      ));
+    });
+    return () => socket.off("messageReaction");
+  }, [socket]);
 
   return (
     <Flex

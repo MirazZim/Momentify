@@ -23,6 +23,12 @@ const messageSchema = new mongoose.Schema(
 			type: String,
 			default: "",
 		},
+		//This is Reaction
+		reactions: [{
+			emoji: String,
+			users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+			_id: false
+		}]
 	},
 	{
 		// Add timestamps to the message (createdAt and updatedAt)

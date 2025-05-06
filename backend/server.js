@@ -7,12 +7,12 @@ import postRoutes from "./routes/postRoutes.js";
 import { v2 as cloudinary } from "cloudinary";
 import messageRoutes from "./routes/messageRoutes.js";
 // Import Express app and HTTP server with Socket.IO
-import {app, server} from "./socket/socket.js";
+import {app, server, io} from "./socket/socket.js";
 
 
 
 
-
+app.set('io', io);
 dotenv.config();
 connectDB();
 
