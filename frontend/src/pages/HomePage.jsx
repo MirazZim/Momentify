@@ -9,6 +9,7 @@ import { useRecoilValue, useRecoilState } from "recoil";
 import userAtom from "../../atoms/userAtom.js";
 import postsAtom from "../../atoms/postsAtom.js";
 import usePreviewImg from "../hooks/usePreviewImg.js";
+import SuggestedUsers from "../components/SuggestedUsers.jsx";
 
 const MAX_CHAR = 500;
 
@@ -256,12 +257,13 @@ const HomePage = () => {
 			</Box>
 			<Box
 				flex={30}
+                borderRadius={"lg"}
 				display={{
 					base: "none",
 					md: "block",
 				}}
 			>
-				{/* <SuggestedUsers /> */}
+				<SuggestedUsers />
 			</Box>
 		</Flex>
 
