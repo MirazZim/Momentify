@@ -52,6 +52,7 @@ const ChatPage = () => {
 
     useEffect(() => {
         const getConversations = async () => {
+            setLoadingConversations(true);
             try {
                 const res = await fetch("/api/messages/conversations");
                 const data = await res.json();
@@ -59,8 +60,12 @@ const ChatPage = () => {
                     showToast("Error", data.error, "error");
                     return;
                 }
-                setConversations(data);
-                setOriginalConversations(data);
+                // Filter out conversations with invalid participants
+                const validConversations = data.filter(
+                    (conversation) => conversation.participants && conversation.participants[0] && conversation.participants[0]._id
+                );
+                setConversations(validConversations);
+                setOriginalConversations(validConversations);
             } catch (error) {
                 showToast("Error", error.message, "error");
             } finally {
@@ -72,13 +77,24 @@ const ChatPage = () => {
 
     const handleConversationSearch = async (e) => {
         e.preventDefault();
+        if (!searchText.trim()) {
+            showToast("Error", "Please enter a username to search", "error");
+            return;
+        }
+
         setSearchingUser(true);
         try {
             const res = await fetch(`/api/users/profile/${searchText}`);
             const searchedUser = await res.json();
 
             if (searchedUser.error || !searchedUser._id) {
-                showToast("Error", "No user found with this name", "error");
+                showToast("Error", searchedUser.error || "No user found with this name", "error");
+                setConversations([]);
+                return;
+            }
+
+            if (!searchedUser._id.match(/^[0-9a-fA-F]{24}$/)) {
+                showToast("Error", "Invalid user ID returned from server", "error");
                 setConversations([]);
                 return;
             }
@@ -91,7 +107,7 @@ const ChatPage = () => {
             }
 
             const conversationAlreadyExists = originalConversations.find(
-                (conversation) => conversation.participants[0]._id === searchedUser._id
+                (conversation) => conversation.participants && conversation.participants[0] && conversation.participants[0]._id === searchedUser._id
             );
 
             if (conversationAlreadyExists) {
@@ -155,6 +171,7 @@ const ChatPage = () => {
     };
 
     const handleSelectConversation = (conversation) => {
+        if (!conversation.participants || !conversation.participants[0]) return;
         setSelectedConversation({
             _id: conversation._id,
             userId: conversation.participants[0]._id,
@@ -256,20 +273,22 @@ const ChatPage = () => {
                             )}
 
                             {!loadingConversations && conversations.map((conversation) => (
-                                <Box
-                                    key={conversation._id}
-                                    onClick={() => handleSelectConversation(conversation)}
-                                    w="full"
-                                    p={2}
-                                    borderRadius="md"
-                                    _hover={{ bg: colorMode === "light" ? "gray.100" : "gray.600" }}
-                                    cursor="pointer"
-                                >
-                                    <Conversations
-                                        isOnline={onlineUsers.includes(conversation.participants[0]._id)}
-                                        conversation={conversation}
-                                    />
-                                </Box>
+                                conversation.participants && conversation.participants[0] ? (
+                                    <Box
+                                        key={conversation._id}
+                                        onClick={() => handleSelectConversation(conversation)}
+                                        w="full"
+                                        p={2}
+                                        borderRadius="md"
+                                        _hover={{ bg: colorMode === "light" ? "gray.100" : "gray.600" }}
+                                        cursor="pointer"
+                                    >
+                                        <Conversations
+                                            isOnline={onlineUsers && conversation.participants[0] && onlineUsers.includes(conversation.participants[0]._id)}
+                                            conversation={conversation}
+                                        />
+                                    </Box>
+                                ) : null
                             ))}
                         </VStack>
                     </DrawerBody>
@@ -347,19 +366,21 @@ const ChatPage = () => {
                     )}
 
                     {!loadingConversations && conversations.map((conversation) => (
-                        <Box
-                            key={conversation._id}
-                            onClick={() => handleSelectConversation(conversation)}
-                            p={2}
-                            borderRadius="md"
-                            _hover={{ bg: colorMode === "light" ? "gray.100" : "gray.600" }}
-                            cursor="pointer"
-                        >
-                            <Conversations
-                                isOnline={onlineUsers.includes(conversation.participants[0]._id)}
-                                conversation={conversation}
-                            />
-                        </Box>
+                        conversation.participants && conversation.participants[0] ? (
+                            <Box
+                                key={conversation._id}
+                                onClick={() => handleSelectConversation(conversation)}
+                                p={2}
+                                borderRadius="md"
+                                _hover={{ bg: colorMode === "light" ? "gray.100" : "gray.600" }}
+                                cursor="pointer"
+                            >
+                                <Conversations
+                                    isOnline={onlineUsers && conversation.participants[0] && onlineUsers.includes(conversation.participants[0]._id)}
+                                    conversation={conversation}
+                                />
+                            </Box>
+                        ) : null
                     ))}
                 </Flex>
 
