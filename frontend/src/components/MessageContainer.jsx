@@ -19,6 +19,7 @@ import { conversationsAtom, selectedConversationAtom } from "../../atoms/message
 import userAtom from "../../atoms/userAtom";
 import { useSocket } from "../../context/SocketContext";
 import { keyframes } from "@emotion/react";
+import messageSound from "../assets/sounds/message.mp3"
 
 const typingAnimation = keyframes`
   0% { transform: translateY(0); }
@@ -50,6 +51,14 @@ const MessageContainer = () => {
       if (selectedConversation._id === message.conversationId) {
         setMessages((prev) => [...prev, message]);
       }
+     
+      if(!document.hasFocus()){
+        const audio = new Audio(messageSound);
+        audio.play();
+      }
+
+
+
       setConversations((prev) => {
         const updatedConversations = prev.map((conversation) => {
           if (conversation._id === message.conversationId) {
@@ -187,6 +196,7 @@ const MessageContainer = () => {
         height={{ base: "calc(100vh - 140px)", md: "calc(100vh - 140px)" }}
         overflowY="auto"
       >
+        
         {/* Loading skeletons */}
         {loadingMessages &&
           [...Array(5)].map((_, i) => (
