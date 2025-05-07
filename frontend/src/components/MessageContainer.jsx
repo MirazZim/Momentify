@@ -160,7 +160,7 @@ const MessageContainer = () => {
 
   useEffect(() => {
     socket.on("messageReaction", (updatedMessage) => {
-      console.log("Received messageReaction in MessageContainer.jsx:", updatedMessage);
+      //console.log("Received messageReaction in MessageContainer.jsx:", updatedMessage);
       setMessages((prev) =>
         prev.map((msg) => (msg._id === updatedMessage._id ? updatedMessage : msg))
       );

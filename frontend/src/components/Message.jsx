@@ -57,7 +57,7 @@ const Message = ({ ownMessage, message }) => {
         throw new Error("Failed to add reaction");
       }
     } catch (error) {
-      console.error("Error adding reaction:", error);
+      //console.error("Error adding reaction:", error);
     }
   };
 

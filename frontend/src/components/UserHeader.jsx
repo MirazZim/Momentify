@@ -17,7 +17,7 @@ const UserHeader = ({ user }) => {
 
     const copyURL = () => {
         const currentURL = window.location.href;
-        console.log("Copying URL:", currentURL);  // Debugging log
+       // console.log("Copying URL:", currentURL);  // Debugging log
 
         /* function of Copying in clipBoard */
         navigator.clipboard.writeText(currentURL).then(() => {
@@ -29,7 +29,7 @@ const UserHeader = ({ user }) => {
                 isClosable: true,
             });
         }).catch(err => {
-            console.error("Clipboard error:", err);  // Debugging error
+           // console.error("Clipboard error:", err);  // Debugging error
         });
     };
 
@@ -45,7 +45,7 @@ const UserHeader = ({ user }) => {
                         <Text fontSize={"sm"}>{user.username}</Text>
                         <Text fontSize={"xs"} bg={"gray.dark"} color={"gray.light"} p={1} borderRadius={"full"}>
 
-                            threads.net
+                            Momentify.net
                         </Text>
                     </Flex>
                 </Box>
@@ -68,12 +68,12 @@ const UserHeader = ({ user }) => {
 
             {currentUser?._id === user._id && (
                 <Link as={RouterLink} to='/update'>
-                    <Button size={"sm"}>Update Profile</Button>
+                    <Button size={"sm"} colorScheme="blue">Update Profile</Button>
                 </Link>
             )}
 
             {currentUser?._id !== user._id && (
-                <Button size={"sm"} onClick={handleFollowUnfollow} isLoading={updating}>
+                <Button colorScheme="blue" size={"sm"} onClick={handleFollowUnfollow} isLoading={updating}>
                     {following ? "Unfollow" : "Follow"}
                 </Button>
             )}
@@ -96,8 +96,8 @@ const UserHeader = ({ user }) => {
                                 <CgMoreO size={24} cursor={"pointer"} />
                             </MenuButton>
                             <Portal>
-                                <MenuList bg={"gray.dark"}>
-                                    <MenuItem bg={"gray.dark"} onClick={copyURL}>
+                                <MenuList >
+                                    <MenuItem bg={"gray.dark : gray.light"}  onClick={copyURL}>
                                         Copy link
                                     </MenuItem>
                                 </MenuList>

@@ -27,7 +27,7 @@ const getUserProfile = async (req, res) => {
         res.status(200).json(user);
     } catch (err) {
         res.status(500).json({ error: err.message });
-        console.log("Error in getUserProfile: ", err.message);
+        //console.log("Error in getUserProfile: ", err.message);
     }
 };
 
@@ -80,7 +80,7 @@ const signupUser = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: error.message });
-        console.log("error in signupUser", error);
+        //console.log("error in signupUser", error);
     }
 };
 
@@ -116,7 +116,7 @@ const loginUser = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
-        console.log("error in loginUser", error);
+        //console.log("error in loginUser", error);
     }
 }
 
@@ -131,7 +131,7 @@ const logoutUser = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: error.message });
-        console.log("error in logoutUser", error);
+        //console.log("error in logoutUser", error);
     }
 }
 
@@ -173,7 +173,7 @@ const followUnfollowUser = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: error.message });
-        console.log("error in followUnfollowUser", error);
+       // console.log("error in followUnfollowUser", error);
     }
 }
 
@@ -230,7 +230,7 @@ const updateUser = async (req, res) => {
 		res.status(200).json(user);
 	} catch (err) {
 		res.status(500).json({ error: err.message });
-		console.log("Error in updateUser: ", err.message);
+		//console.log("Error in updateUser: ", err.message);
 	}
 };
 

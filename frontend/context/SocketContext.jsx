@@ -45,7 +45,7 @@ export const SocketContextProvider = ({ children }) => {
         return () => socket && socket.close();
     }, [user?._id]); // Re-run effect if user ID changes
 
-    console.log("onlineUsers", onlineUsers);
+  //  console.log("onlineUsers", onlineUsers);
 
     // Provide socket instance to children components
     return (

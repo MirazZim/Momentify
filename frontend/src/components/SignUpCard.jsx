@@ -42,7 +42,7 @@ const SignUp = () => {
     
 
     const handleSignup = async () => {
-        console.log("handleSignup", inputs)
+       // console.log("handleSignup", inputs)
 
         try {
             const res = await fetch("/api/users/signup", {
@@ -68,7 +68,7 @@ const SignUp = () => {
 
         } catch (error) {
            showToast("Error", "An unexpected error occurred.", "error");
-            console.log("error in handleSignup", error) 
+          //  console.log("error in handleSignup", error) 
         }
     }
 

@@ -19,7 +19,7 @@ import AllUsersPage from "./components/AllUsersPage.jsx"
 function App() {
 
   const user = useRecoilValue(userAtom);
-  console.log("Currently Logged in ",user)
+  //console.log("Currently Logged in ",user)
 
   const {pathname} = useLocation();
 

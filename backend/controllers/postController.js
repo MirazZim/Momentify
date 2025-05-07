@@ -47,7 +47,7 @@ const createPost = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ error: error.message });
-        console.log("error in createPost", error);
+        //console.log("error in createPost", error);
     }
 
 }
@@ -65,7 +65,7 @@ const getPost = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ error: error.message });
-        console.log("error in getPost", error);
+        //console.log("error in getPost", error);
     }
 }
 
@@ -97,7 +97,7 @@ const deletePost = async (req, res) => {
         res.status(200).json({ message: "Post deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: error.message });
-        console.log("error in deletePost", error);
+        //console.log("error in deletePost", error);
     }
 }
 
@@ -177,7 +177,7 @@ const replyToPost = async (req, res) => {
         res.status(200).json(reply);
     } catch (error) {
         res.status(500).json({ error: error.message });
-        console.log("error in replyToPost", error);
+        //console.log("error in replyToPost", error);
     }
 }
 
@@ -205,7 +205,7 @@ const getFeedPosts = async (req, res) => {
         res.status(200).json(feedPosts);
     } catch (error) {
         res.status(500).json({ error: error.message });
-        console.log("error in getFeedPosts", error);
+        //console.log("error in getFeedPosts", error);
     }
 }
 

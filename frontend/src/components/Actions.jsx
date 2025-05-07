@@ -32,7 +32,7 @@ const Actions = ({ post }) => {
             });
             const data = await res.json();
             if (data.error) return showToast("Error", data.error, "error");
-            console.log(data)
+            //console.log(data)
 
             if (!liked) {
                 // add the id of the current user to post.likes array
@@ -146,7 +146,7 @@ const Actions = ({ post }) => {
 
 
 
-                <RepostSVG />
+            
                 <ShareSVG />
 
 

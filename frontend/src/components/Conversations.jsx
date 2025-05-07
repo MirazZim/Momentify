@@ -42,7 +42,7 @@ const Conversations = ({ conversation, isOnline }) => {
         }));
       }
     } catch (error) {
-      console.error('Error marking conversation as seen:', error);
+     // console.error('Error marking conversation as seen:', error);
     }
   };
 

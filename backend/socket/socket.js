@@ -30,7 +30,7 @@ const userSocketMap = {}
 // Handle new socket connections
 io.on("connection", (socket) => {
     // Log the unique socket ID when a user connects
-    console.log("a user connected", socket.id);
+    //console.log("a user connected", socket.id);
 
 
 
@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
                 { $set: { "lastMessage.seen": true } }
             );
         } catch (error) {
-            console.log("error in markMessagesAsSeen", error);
+           // console.log("error in markMessagesAsSeen", error);
         }
     });
 
