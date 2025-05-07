@@ -2,13 +2,11 @@ import { Box, Flex, Skeleton, SkeletonCircle, Text, VStack, Divider, Button } fr
 import React, { useEffect, useState } from 'react'
 import useShowToast from '../hooks/useShowToast';
 import SuggestedUser from './SuggestedUser';
-import { useNavigate } from 'react-router-dom';
 
 const SuggestedUsers = () => {
     const [loading, setLoading] = useState(true);
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const showToast = useShowToast();
-    const navigate = useNavigate();
 
     useEffect(() => {
         const getSuggestedUsers = async () => {
@@ -38,11 +36,11 @@ const SuggestedUsers = () => {
             bg="white"
             p={4}
             borderRadius="xl"
-            boxShadow="md"
+            boxShadow={{ base: "none", md: "md" }}
             maxW="400px"
             mx="auto"
             transition="all 0.3s"
-            _hover={{ boxShadow: "lg" }}
+            _hover={{ boxShadow: { md: "lg" } }}
         >
             <Text
                 fontSize="lg"
@@ -91,17 +89,17 @@ const SuggestedUsers = () => {
                     No suggestions available
                 </Text>
             )}
-             <Divider borderColor="gray.200" />
-             <Button
-                    variant="link"
-                    color="blue.500"
-                    fontSize="sm"
-                    fontWeight="medium"
-                    _hover={{ color: "blue.600", textDecoration: "underline" }}
-                    onClick={() => navigate("/users/all")}
-                >
-                    See All Users
-                </Button>
+            <Divider borderColor="gray.200" />
+            <Button
+                variant="link"
+                color="blue.500"
+                fontSize="sm"
+                fontWeight="medium"
+                _hover={{ color: "blue.600", textDecoration: "underline" }}
+                onClick={() => window.location.href = "/users/all"}
+            >
+                See All Users
+            </Button>
         </VStack>
     )
 }

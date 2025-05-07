@@ -1,5 +1,5 @@
 
-import { Box, Flex, Spinner, Textarea, Icon, Text, HStack, Avatar, useColorModeValue, Input, FormControl, Image, CloseButton, Button } from "@chakra-ui/react";
+import { Box, Flex, Spinner, Textarea, Icon, Text, HStack, Avatar, useColorModeValue, Input, FormControl, Image, CloseButton, Button, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure } from "@chakra-ui/react";
 import { FaPhotoVideo } from "react-icons/fa";
 import useShowToast from "../hooks/useShowToast.js";
 import { useEffect, useState, useRef } from "react";
@@ -10,6 +10,7 @@ import userAtom from "../../atoms/userAtom.js";
 import postsAtom from "../../atoms/postsAtom.js";
 import usePreviewImg from "../hooks/usePreviewImg.js";
 import SuggestedUsers from "../components/SuggestedUsers.jsx";
+import { FaUserFriends } from "react-icons/fa"
 
 const MAX_CHAR = 500;
 
@@ -26,6 +27,8 @@ const HomePage = () => {
     const { handleImageChange, imgUrl, setImgUrl } = usePreviewImg();
     const imageRef = useRef(null);
     const [postLoading, setPostLoading] = useState(false);
+
+    const { isOpen, onOpen, onClose } = useDisclosure()
 
     // Fetch posts for the feed
     useEffect(() => {
@@ -112,6 +115,40 @@ const HomePage = () => {
 
     return (
         <>
+
+ {/* Mobile Connections Button - Fixed at bottom */}
+ <Box
+                position="fixed"
+                bottom="4"
+                right="4"
+                display={{ base: "block", md: "none" }}
+                zIndex="docked"
+            >
+                <Button
+                    onClick={onOpen}
+                    colorScheme="blue"
+                    borderRadius="full"
+                    boxShadow="lg"
+                    p={4}
+                    size="lg"
+                >
+                    <FaUserFriends size={24} />
+                </Button>
+            </Box>
+
+            {/* Mobile Drawer for Suggested Users */}
+            <Drawer placement="right" onClose={onClose} isOpen={isOpen}>
+                <DrawerOverlay />
+                <DrawerContent>
+                    <DrawerHeader borderBottomWidth="1px">
+                        Suggested Connections
+                    </DrawerHeader>
+                    <DrawerBody>
+                        <SuggestedUsers />
+                    </DrawerBody>
+                </DrawerContent>
+            </Drawer>
+
             {/* Input Bar (Modern and Sleek) */}
             <Box
                 mb={6}
@@ -267,8 +304,7 @@ const HomePage = () => {
 			</Box>
 		</Flex>
 
-            {/* CreatePost Button (Visible only when scrolling down) */}
-            {showPostButton && <CreatePost />}
+            
         </>
     );
 };
