@@ -1,5 +1,10 @@
-import { SearchIcon } from '@chakra-ui/icons';
-import { Box, Button, Flex, Input, Skeleton, SkeletonCircle, Text, useColorMode, IconButton, InputGroup, InputLeftElement } from '@chakra-ui/react';
+import {
+    Box, Button, Flex, Input, Skeleton, SkeletonCircle, Text,
+    useColorMode, IconButton, InputGroup, InputLeftElement,
+    Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, useDisclosure,
+    useBreakpointValue, VStack
+} from '@chakra-ui/react';
+import { SearchIcon, CloseIcon, ChevronRightIcon } from '@chakra-ui/icons';
 import { useEffect, useState } from 'react';
 import Conversations from '../components/Conversations';
 import MessageContainer from '../components/MessageContainer';
@@ -7,9 +12,9 @@ import useShowToast from '../hooks/useShowToast.js';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { conversationsAtom, selectedConversationAtom } from '../../atoms/messagesAtom.js';
 import { GiConversation } from 'react-icons/gi';
-import { CloseIcon } from '@chakra-ui/icons';
 import userAtom from '../../atoms/userAtom.js';
 import { useSocket } from '../../context/SocketContext.jsx';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const ChatPage = () => {
     const [searchText, setSearchText] = useState("");
@@ -21,37 +26,30 @@ const ChatPage = () => {
     const currentUser = useRecoilValue(userAtom);
     const showToast = useShowToast();
     const { colorMode } = useColorMode();
-    // Access socket and onlineUsers from the socket context
-    const {socket, onlineUsers } = useSocket();
-
-
-
+    const { socket, onlineUsers } = useSocket();
+    const { isOpen: isDrawerOpen, onOpen: onDrawerOpen, onClose: onDrawerClose } = useDisclosure();
+    const isMobile = useBreakpointValue({ base: true, md: false });
 
     useEffect(() => {
-          // Listen for messagesSeen event to update conversation's lastMessage seen status
-		socket?.on("messagesSeen", ({ conversationId }) => {
-			setConversations((prev) => {
-				const updatedConversations = prev.map((conversation) => {
-					if (conversation._id === conversationId) {
-						return {
-							...conversation,
-							lastMessage: {
-								...conversation.lastMessage,
-								seen: true,
-							},
-						};
-					}
-					return conversation;
-				});
-				return updatedConversations;
-			});
-		});
-	}, [socket, setConversations]);
+        socket?.on("messagesSeen", ({ conversationId }) => {
+            setConversations((prev) => {
+                const updatedConversations = prev.map((conversation) => {
+                    if (conversation._id === conversationId) {
+                        return {
+                            ...conversation,
+                            lastMessage: {
+                                ...conversation.lastMessage,
+                                seen: true,
+                            },
+                        };
+                    }
+                    return conversation;
+                });
+                return updatedConversations;
+            });
+        });
+    }, [socket, setConversations]);
 
-
-
-
-    // Initialize originalConversations when conversations are first loaded
     useEffect(() => {
         const getConversations = async () => {
             try {
@@ -69,11 +67,9 @@ const ChatPage = () => {
                 setLoadingConversations(false);
             }
         };
-
         getConversations();
     }, [showToast, setConversations]);
 
-    // Handle search form submission
     const handleConversationSearch = async (e) => {
         e.preventDefault();
         setSearchingUser(true);
@@ -106,6 +102,7 @@ const ChatPage = () => {
                     userProfilePic: searchedUser.profilePic,
                 });
                 setConversations([conversationAlreadyExists]);
+                if (isMobile) onDrawerClose();
                 return;
             }
 
@@ -121,13 +118,12 @@ const ChatPage = () => {
                         _id: searchedUser._id,
                         username: searchedUser.username,
                         profilePic: searchedUser.profilePic,
-                        
-                       
                     },
                 ],
             };
 
             setConversations([mockConversation]);
+            if (isMobile) onDrawerClose();
 
         } catch (error) {
             showToast("Error", "An error occurred while searching", "error");
@@ -137,206 +133,311 @@ const ChatPage = () => {
         }
     };
 
-    // Handle search input change and clearing
     const handleSearchInputChange = (e) => {
         const value = e.target.value;
         setSearchText(value);
-
         if (value === "") {
             setConversations(originalConversations);
             setSelectedConversation({ _id: "" });
         }
     };
 
-    // Handle canceling the search
     const handleCancelSearch = () => {
         setSearchText("");
         setConversations(originalConversations);
         setSelectedConversation({ _id: "" });
     };
 
-    // Handle closing the MessageContainer
     const handleCloseChat = () => {
-        setConversations(originalConversations);
         setSelectedConversation({ _id: "" });
         setSearchText("");
+        if (isMobile) onDrawerOpen();
+    };
+
+    const handleSelectConversation = (conversation) => {
+        setSelectedConversation({
+            _id: conversation._id,
+            userId: conversation.participants[0]._id,
+            username: conversation.participants[0].username,
+            userProfilePic: conversation.participants[0].profilePic,
+        });
+        if (isMobile) onDrawerClose();
     };
 
     return (
         <Box
-            position={"absolute"}
-            left={"50%"}
-            w={{ lg: "900px", md: "90%", base: "100%" }}
-            p={{ base: 2, md: 4 }}
-            transform={"translateX(-50%)"}
+            position={{ base: "relative", md: "absolute" }}
+            left={{ base: "0", md: "50%" }}
+            w={{ base: "100%", md: "90%", lg: "900px" }}
+            p={{ base: 0, md: 4 }}
+            transform={{ base: "none", md: "translateX(-50%)" }}
             bg={colorMode === "light" ? "white" : "gray.800"}
-            borderRadius="2xl"
-            boxShadow="lg"
-            border="none"
-            backdropFilter="blur(10px)"
-            bgGradient={colorMode === "light" ? "linear(to-br, white, gray.50)" : "linear(to-br, gray.800, gray.900)"}
+            borderRadius={{ base: "none", md: "2xl" }}
+            boxShadow={{ base: "none", md: "lg" }}
+            h={{ base: "100vh", md: "auto" }}
+            overflow="hidden"
         >
+            <Drawer
+                isOpen={isDrawerOpen}
+                placement="left"
+                onClose={onDrawerClose}
+                size={{ base: "xs", md: "full" }}
+            >
+                <DrawerOverlay />
+                <DrawerContent>
+                    <DrawerHeader
+                        borderBottomWidth="1px"
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        p={3}
+                    >
+                        <Text fontWeight="bold">Conversations</Text>
+                        <IconButton
+                            icon={<CloseIcon />}
+                            variant="ghost"
+                            onClick={onDrawerClose}
+                            aria-label="Close drawer"
+                            size="sm"
+                        />
+                    </DrawerHeader>
+                    <DrawerBody p={0}>
+                        <VStack spacing={3} p={3}>
+                            <form onSubmit={handleConversationSearch} style={{ width: '100%' }}>
+                                <Flex gap={2} alignItems="center">
+                                    <InputGroup>
+                                        <InputLeftElement pointerEvents="none">
+                                            <SearchIcon color={colorMode === "light" ? "gray.400" : "gray.500"} />
+                                        </InputLeftElement>
+                                        <Input
+                                            placeholder="Search users..."
+                                            value={searchText}
+                                            onChange={handleSearchInputChange}
+                                            borderRadius="full"
+                                            bg={colorMode === "light" ? "gray.100" : "gray.700"}
+                                        />
+                                    </InputGroup>
+                                    <Button
+                                        type="submit"
+                                        colorScheme="blue"
+                                        borderRadius="full"
+                                        px={4}
+                                        isLoading={searchingUser}
+                                    >
+                                        Search
+                                    </Button>
+                                </Flex>
+                            </form>
+
+                            {loadingConversations && (
+                                [0, 1, 2, 3, 4].map((_, i) => (
+                                    <Flex
+                                        key={i}
+                                        p={3}
+                                        borderRadius="lg"
+                                        gap={3}
+                                        alignItems="center"
+                                        w="full"
+                                        bg={colorMode === "light" ? "white" : "gray.600"}
+                                    >
+                                        <SkeletonCircle size="10" />
+                                        <VStack align="start" spacing={1} flex={1}>
+                                            <Skeleton height="3" w="120px" />
+                                            <Skeleton height="3" w="80%" />
+                                        </VStack>
+                                    </Flex>
+                                ))
+                            )}
+
+                            {!loadingConversations && conversations.length === 0 && !searchText && (
+                                <Text color="gray.500" textAlign="center" py={4}>
+                                    No conversations available
+                                </Text>
+                            )}
+
+                            {!loadingConversations && conversations.map((conversation) => (
+                                <Box
+                                    key={conversation._id}
+                                    onClick={() => handleSelectConversation(conversation)}
+                                    w="full"
+                                    p={2}
+                                    borderRadius="md"
+                                    _hover={{ bg: colorMode === "light" ? "gray.100" : "gray.600" }}
+                                    cursor="pointer"
+                                >
+                                    <Conversations
+                                        isOnline={onlineUsers.includes(conversation.participants[0]._id)}
+                                        conversation={conversation}
+                                    />
+                                </Box>
+                            ))}
+                        </VStack>
+                    </DrawerBody>
+                </DrawerContent>
+            </Drawer>
+
             <Flex
                 gap={4}
                 flexDirection={{ base: "column", md: "row" }}
-                maxW={{ sm: "500px", md: "full" }}
-                mx="auto"
-                h={{ base: "auto", md: "600px" }}
+                h={{ base: "100vh", md: "600px" }}
             >
                 <Flex
+                    display={{ base: "none", md: "flex" }}
                     flex={30}
-                    gap={3}
                     flexDirection="column"
-                    maxW={{ sm: "300px", md: "full" }}
-                    mx="auto"
                     bg={colorMode === "light" ? "gray.50" : "gray.700"}
                     p={4}
                     borderRadius="xl"
                     boxShadow="md"
                 >
-                    <Text
-                        fontWeight={600}
-                        fontSize="lg"
-                        color={colorMode === "light" ? "gray.700" : "gray.200"}
-                    >
+                    <Text fontSize="xl" fontWeight="bold" mb={4}>
                         Your Conversations
                     </Text>
+
                     <form onSubmit={handleConversationSearch}>
-                        <Flex alignItems="center" gap={2}>
+                        <Flex mb={4} gap={2}>
                             <InputGroup>
                                 <InputLeftElement pointerEvents="none">
-                                    <SearchIcon color={colorMode === "light" ? "gray.400" : "gray.500"} />
+                                    <SearchIcon color="gray.400" />
                                 </InputLeftElement>
                                 <Input
-                                    placeholder="Search for a user"
+                                    placeholder="Search users..."
                                     value={searchText}
                                     onChange={handleSearchInputChange}
-                                    bg={colorMode === "light" ? "white" : "gray.600"}
-                                    border="none"
                                     borderRadius="full"
-                                    boxShadow="sm"
-                                    _focus={{
-                                        boxShadow: "outline",
-                                        borderColor: colorMode === "light" ? "blue.300" : "blue.500",
-                                    }}
-                                    _hover={{ boxShadow: "md" }}
+                                    bg={colorMode === "light" ? "white" : "gray.600"}
                                 />
                             </InputGroup>
                             <Button
-                                size="sm"
-                                isLoading={searchingUser}
                                 type="submit"
-                                bgGradient={colorMode === "light" ? "linear(to-r, blue.400, blue.500)" : "linear(to-r, blue.500, blue.600)"}
-                                color="white"
+                                colorScheme="blue"
                                 borderRadius="full"
-                                _hover={{ bgGradient: colorMode === "light" ? "linear(to-r, blue.500, blue.600)" : "linear(to-r, blue.600, blue.700)" }}
-                                transition="all 0.3s"
+                                px={4}
+                                isLoading={searchingUser}
                             >
-                                <SearchIcon />
+                                Search
                             </Button>
-                            {searchText && (
-                                <Button
-                                    size="sm"
-                                    onClick={handleCancelSearch}
-                                    bg={colorMode === "light" ? "gray.200" : "gray.600"}
-                                    color={colorMode === "light" ? "gray.700" : "gray.200"}
-                                    borderRadius="full"
-                                    _hover={{ bg: colorMode === "light" ? "gray.300" : "gray.500" }}
-                                    transition="all 0.3s"
-                                >
-                                    Cancel
-                                </Button>
-                            )}
                         </Flex>
                     </form>
+
                     {loadingConversations && (
                         [0, 1, 2, 3, 4].map((_, i) => (
                             <Flex
+                                key={i}
                                 p={3}
                                 borderRadius="lg"
                                 gap={3}
                                 alignItems="center"
-                                key={i}
+                                mb={2}
                                 bg={colorMode === "light" ? "white" : "gray.600"}
-                                boxShadow="sm"
                             >
-                                <SkeletonCircle size="8" speed={0.8} />
-                                <Flex w="full" flexDirection="column" gap={2}>
-                                    <Skeleton height="10px" w="100px" speed={0.8} />
-                                    <Skeleton height="8px" w="80%" speed={0.8} />
-                                </Flex>
+                                <SkeletonCircle size="10" />
+                                <VStack align="start" spacing={1} flex={1}>
+                                    <Skeleton height="3" w="120px" />
+                                    <Skeleton height="3" w="80%" />
+                                </VStack>
                             </Flex>
                         ))
                     )}
 
-                    {!loadingConversations && conversations.length === 0 && !searchText ? (
-                        <Text
-                            color={colorMode === "light" ? "gray.500" : "gray.400"}
-                            fontSize="sm"
-                            textAlign="center"
-                            p={4}
-                        >
+                    {!loadingConversations && conversations.length === 0 && !searchText && (
+                        <Text color="gray.500" textAlign="center" py={4}>
                             No conversations available
                         </Text>
-                    ) : (
-                        /*  Render conversations, checking if each participant is online */
-                        !loadingConversations &&
-                        conversations.map((conversation) => (
-                            <Conversations key={conversation._id}
-                            isOnline={onlineUsers.includes(conversation.participants[0]._id)}
-                            conversation={conversation} />
-                        ))
                     )}
+
+                    {!loadingConversations && conversations.map((conversation) => (
+                        <Box
+                            key={conversation._id}
+                            onClick={() => handleSelectConversation(conversation)}
+                            p={2}
+                            borderRadius="md"
+                            _hover={{ bg: colorMode === "light" ? "gray.100" : "gray.600" }}
+                            cursor="pointer"
+                        >
+                            <Conversations
+                                isOnline={onlineUsers.includes(conversation.participants[0]._id)}
+                                conversation={conversation}
+                            />
+                        </Box>
+                    ))}
                 </Flex>
 
-                {!selectedConversation._id && (
-                    <Flex
-                        flex={70}
-                        borderRadius="xl"
-                        p={4}
-                        flexDir="column"
-                        alignItems="center"
-                        justifyContent="center"
-                        height="100%"
-                        bg={colorMode === "light" ? "gray.50" : "gray.700"}
-                        boxShadow="md"
-                        transition="all 0.3s"
-                    >
-                        <GiConversation
-                            size={80}
-                            color={colorMode === "light" ? "gray.400" : "gray.500"}
-                        />
-                        <Text
-                            fontSize="lg"
-                            color={colorMode === "light" ? "gray.600" : "gray.300"}
-                            mt={4}
-                            textAlign="center"
+                <AnimatePresence>
+                    {selectedConversation._id ? (
+                        <motion.div
+                            key="message-container"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            style={{
+                                flex: 70,
+                                height: { base: "100vh", md: "600px" },
+                                position: "relative"
+                            }}
                         >
-                            Select a conversation to start messaging
-                        </Text>
-                    </Flex>
-                )}
-
-                {selectedConversation._id && (
-                    <Box flex={70} position="relative" borderRadius="xl" overflow="hidden" boxShadow="md">
-                        <IconButton
-                            icon={<CloseIcon />}
-                            size="sm"
-                            position="absolute"
-                            top={3}
-                            right={3}
-                            onClick={handleCloseChat}
-                            aria-label="Close chat"
-                            bg={colorMode === "light" ? "gray.200" : "gray.600"}
-                            color={colorMode === "light" ? "gray.700" : "gray.200"}
-                            borderRadius="full"
-                            _hover={{ bg: colorMode === "light" ? "gray.300" : "gray.500", transform: "scale(1.1)" }}
-                            transition="all 0.2s"
-                            zIndex={1}
-                        />
-                        <MessageContainer />
-                    </Box>
-                )}
+                            <Box
+                                position="relative"
+                                w="full"
+                                h={{ base: "100vh", md: "600px" }}
+                                bg={colorMode === "light" ? "gray.100" : "gray.800"}
+                            >
+                                <IconButton
+                                    icon={<CloseIcon />}
+                                    size="sm"
+                                    position="absolute"
+                                    top={3}
+                                    right={3}
+                                    onClick={handleCloseChat}
+                                    aria-label="Close conversation"
+                                    bg={colorMode === "light" ? "gray.200" : "gray.600"}
+                                    color={colorMode === "light" ? "gray.700" : "gray.200"}
+                                    borderRadius="full"
+                                    _hover={{ bg: colorMode === "light" ? "gray.300" : "gray.500", transform: "scale(1.1)" }}
+                                    transition="all 0.2s"
+                                    zIndex={1}
+                                />
+                                <MessageContainer />
+                            </Box>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="empty-state"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            style={{
+                                flex: 70,
+                                height: { base: "100vh", md: "600px" },
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                            }}
+                        >
+                            <Flex
+                                flexDir="column"
+                                alignItems="center"
+                                justifyContent="center"
+                                p={6}
+                                textAlign="center"
+                                onClick={isMobile ? onDrawerOpen : undefined}
+                                cursor={isMobile ? "pointer" : "default"}
+                            >
+                                <GiConversation
+                                    size={60}
+                                    color={colorMode === "light" ? "gray.400" : "gray.500"}
+                                />
+                                <Text fontSize="xl" mt={4} fontWeight="medium">
+                                    {isMobile ? (
+                                        <>
+                                            Tap to view conversations
+                                            <ChevronRightIcon ml={2} />
+                                        </>
+                                    ) : "Select a conversation to start messaging"}
+                                </Text>
+                            </Flex>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </Flex>
         </Box>
     );

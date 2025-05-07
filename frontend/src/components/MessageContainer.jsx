@@ -166,6 +166,7 @@ const MessageContainer = () => {
       borderRadius="md"
       p={3}
       flexDirection="column"
+      h="100%"
     >
       <Flex w="full" h={12} alignItems="center" gap={2}>
         <Avatar src={selectedConversation.userProfilePic} size="sm" />
@@ -183,7 +184,7 @@ const MessageContainer = () => {
         gap={4}
         my={4}
         p={2}
-        height="450px"
+        height={{ base: "calc(100vh - 140px)", md: "calc(100vh - 140px)" }}
         overflowY="auto"
       >
         {/* Loading skeletons */}
