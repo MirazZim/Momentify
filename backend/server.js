@@ -1,3 +1,4 @@
+import path from "path";
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./db/connectDB.js";
@@ -12,12 +13,15 @@ import {app, server, io} from "./socket/socket.js";
 
 
 
+
 app.set('io', io);
 dotenv.config();
 connectDB();
 
 
 const PORT = process.env.PORT || 5000;
+
+const __dirname = path.resolve(); 
 
 
 cloudinary.config({
@@ -48,6 +52,14 @@ app.use("/api/users", userRoutes);
 
 app.use("/api/posts", postRoutes);
 app.use("/api/messages", messageRoutes);
+
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "frontend/dist")));
+    
+    app.get("*", (req, res) => {
+      res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+    });
+  }
 
 // Start the server on the specified port
 server.listen(PORT, () => {
