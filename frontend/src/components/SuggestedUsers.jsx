@@ -2,11 +2,13 @@ import { Box, Flex, Skeleton, SkeletonCircle, Text, VStack, Divider, Button } fr
 import React, { useEffect, useState } from 'react'
 import useShowToast from '../hooks/useShowToast';
 import SuggestedUser from './SuggestedUser';
+import { useNavigate } from 'react-router-dom';
 
 const SuggestedUsers = () => {
     const [loading, setLoading] = useState(true);
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const showToast = useShowToast();
+    const navigate = useNavigate();
 
     useEffect(() => {
         const getSuggestedUsers = async () => {
@@ -96,7 +98,7 @@ const SuggestedUsers = () => {
                     fontSize="sm"
                     fontWeight="medium"
                     _hover={{ color: "blue.600", textDecoration: "underline" }}
-                    onClick={() => window.location.href = "/users/all"}
+                    onClick={() => navigate("/users/all")}
                 >
                     See All Users
                 </Button>

@@ -262,7 +262,28 @@ const getSuggestedUsers = async (req, res) => {
 	}
 };
 
+const getAllUsers = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        
+        // Get current user's following list
+        const currentUser = await User.findById(userId).select("following");
+        
+        // Find users not in following list and not the current user
+        const users = await User.find({ 
+            _id: { 
+                $ne: userId, 
+                $nin: currentUser.following 
+            } 
+        }).select("-password");
+
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
 
 export { signupUser, loginUser, logoutUser, followUnfollowUser, updateUser, getUserProfile,
-    getSuggestedUsers
+    getSuggestedUsers, getAllUsers
  };
