@@ -12,9 +12,9 @@ const server = http.createServer(app);
 // Initialize Socket.IO server with CORS configuration
 const io = new Server(server, {
     cors: {
-        origin: process.env.FRONTEND_URL || "http://localhost:3000", // Allow frontend origin
+        origin: "http://localhost:3000", // Allow frontend origin
         methods: ["GET", "POST"], // Allowed HTTP methods
-        credentials: true
+        
     },
 });
 
@@ -53,7 +53,7 @@ io.on("connection", (socket) => {
                 { conversationId, seen: false },
                 { $set: { seen: true } }
             );
-            
+
              // Notify the client that messages are seen
             io.to(userSocketMap[userId]).emit("messagesSeen", { conversationId });
 
