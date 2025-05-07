@@ -6,8 +6,8 @@
   "scripts": {
     "start": "vite",
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build --base=/",
+  "preview": "vite preview --port=3000"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.2.4",
