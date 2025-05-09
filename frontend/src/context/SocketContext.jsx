@@ -23,14 +23,11 @@ export const SocketContextProvider = ({ children }) => {
     // Effect to initialize and manage socket connection
     useEffect(() => {
         // Connect to Socket.IO server with user ID in query
-         const socket = io(process.env.REACT_APP_BACKEND_URL || "http://localhost:5000", {
-        query: {
-            userId: user?._id,
-        },
-        transports: ['websocket'],
-        secure: true,
-        withCredentials: true
-    });
+        const socket = io("/", {
+			query: {
+				userId: user?._id,
+			},
+		});
         // Store socket instance in state
         setSocket(socket);
 
