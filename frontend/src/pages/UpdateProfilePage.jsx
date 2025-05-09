@@ -13,7 +13,7 @@ import {
   import { useRef, useState } from "react";
   import { useRecoilState } from "recoil";
   import useShowToast from "../hooks/useShowToast";
-  import userAtom from "../../atoms/userAtom.js";
+  import userAtom from "../atoms/userAtom.js";
   import usePreviewImg from "../hooks/usePreviewImg.js";
   
   export default function UpdateProfilePage() {

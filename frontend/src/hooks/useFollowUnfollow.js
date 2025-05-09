@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { useRecoilValue } from "recoil";
 import useShowToast from "./useShowToast.js";
-import userAtom from "../../atoms/userAtom.js";
+import userAtom from "../atoms/userAtom.js";
 
 const useFollowUnfollow = (user) => {
 	const currentUser = useRecoilValue(userAtom);

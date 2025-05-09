@@ -1,13 +1,14 @@
 import { Button, Flex, Image, Link, useColorMode, IconButton, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react"
 import { useRecoilValue, useSetRecoilState } from "recoil"
-import userAtom from "../../atoms/userAtom.js"
+import userAtom from "../atoms/userAtom.js"
 import { Link as RouterLink } from "react-router-dom"
 import { AiFillHome, AiOutlineUser } from "react-icons/ai"
 import { RxAvatar } from "react-icons/rx"
 import { LuLogOut, LuMenu } from "react-icons/lu"
 import useLogout from "../hooks/useLogout.js"
-import authScreenAtom from "../../atoms/authAtom.js"
+import authScreenAtom from "../atoms/authAtom.js"
 import { BsFillChatQuoteFill, BsPeople } from "react-icons/bs"
+
 
 const Header = () => {
     const { colorMode, toggleColorMode } = useColorMode()

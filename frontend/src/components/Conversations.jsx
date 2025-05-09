@@ -2,8 +2,9 @@ import { Avatar, AvatarBadge, Box, Flex, Image, Stack, Text, useColorMode, useCo
 import React from 'react';
 import { BsCheck2All, BsFillFileImageFill } from 'react-icons/bs';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import userAtom from '../../atoms/userAtom.js';
-import { selectedConversationAtom } from '../../atoms/messagesAtom.js';
+
+import { selectedConversationAtom } from '../atoms/messagesAtom.js';
+import userAtom from '../atoms/userAtom.js';
 
 const Conversations = ({ conversation, isOnline }) => {
   const user = conversation.participants[0];

@@ -1,3 +1,4 @@
+import path from "path";
 import express from "express";
 import dotenv from "dotenv";
 import connectDB from "./db/connectDB.js";
@@ -7,7 +8,6 @@ import postRoutes from "./routes/postRoutes.js";
 import { v2 as cloudinary } from "cloudinary";
 import messageRoutes from "./routes/messageRoutes.js";
 import { app, server } from "./socket/socket.js";
-import path from "path";
 
 dotenv.config();
 connectDB();

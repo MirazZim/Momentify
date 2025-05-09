@@ -6,10 +6,10 @@ import { Image, Button } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { conversationsAtom, selectedConversationAtom } from "../../atoms/messagesAtom";
+import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
 import usePreviewImg from "../hooks/usePreviewImg";
 import { useColorModeValue } from "@chakra-ui/react";
-import { useSocket } from "../../context/SocketContext";
+import { useSocket } from "../context/SocketContext";
 
 const MessageInput = ({ setMessages }) => {
   const [messageText, setMessageText] = useState("");

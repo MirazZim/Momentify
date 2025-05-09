@@ -2,7 +2,7 @@ import { Avatar, Box, Button, Flex, Link, Menu, MenuButton, MenuItem, MenuList, 
 import { BsInstagram } from "react-icons/bs"
 import { CgMoreO } from "react-icons/cg"
 import { useRecoilValue } from "recoil"
-import userAtom from "../../atoms/userAtom.js"
+import userAtom from "../atoms/userAtom.js"
 import { Link as RouterLink } from "react-router-dom";
 import useFollowUnfollow from "../hooks/useFollowUnfollow.js"
 

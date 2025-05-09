@@ -15,9 +15,9 @@ import MessageInput from "./MessageInput";
 import { useEffect, useRef, useState } from "react";
 import useShowToast from "../hooks/useShowToast";
 import { useRecoilValue, useSetRecoilState } from "recoil";
-import { conversationsAtom, selectedConversationAtom } from "../../atoms/messagesAtom";
-import userAtom from "../../atoms/userAtom";
-import { useSocket } from "../../context/SocketContext";
+import { conversationsAtom, selectedConversationAtom } from "../atoms/messagesAtom";
+import userAtom from "../atoms/userAtom";
+import { useSocket } from "../context/SocketContext";
 import { keyframes } from "@emotion/react";
 import messageSound from "../assets/sounds/message.mp3"
 

@@ -6,7 +6,7 @@ import PostPage from "./pages/PostPage"
 import Header from "./components/Header"
 import HomePage from "./pages/HomePage"
 import AuthPage from "./pages/AuthPage"
-import userAtom from "../atoms/userAtom.js"
+import userAtom from "./atoms/userAtom.js"
 import { useRecoilValue } from "recoil"
 
 import UpdateProfilePage from "./pages/UpdateProfilePage.jsx"

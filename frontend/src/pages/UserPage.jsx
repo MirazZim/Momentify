@@ -7,7 +7,7 @@ import { Flex, Spinner } from "@chakra-ui/react";
 import Post from "../components/Post.jsx";
 import useGetUserProfile from "../hooks/useGetUserProfile.js";
 import { useRecoilState } from "recoil";
-import postsAtom from "../../atoms/postsAtom.js";
+import postsAtom from "../atoms/postsAtom.js";
 
 
 

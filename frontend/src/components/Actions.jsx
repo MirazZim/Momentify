@@ -1,9 +1,10 @@
 import { Box, Button, Flex, FormControl, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useDisclosure } from "@chakra-ui/react"
 import { useState } from "react";
 import useShowToast from "../hooks/useShowToast";
-import userAtom from '../../atoms/userAtom.js';
+
 import { useRecoilState, useRecoilValue } from "recoil";
-import postsAtom from "../../atoms/postsAtom.js";
+import postsAtom from "../atoms/postsAtom.js";
+import userAtom from "../atoms/userAtom.js";
 
 
 const Actions = ({ post }) => {

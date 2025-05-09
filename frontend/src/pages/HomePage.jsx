@@ -6,8 +6,8 @@ import { useEffect, useState, useRef } from "react";
 import Post from "../components/Post.jsx";
 import CreatePost from "../components/CreatePost.jsx";
 import { useRecoilValue, useRecoilState } from "recoil";
-import userAtom from "../../atoms/userAtom.js";
-import postsAtom from "../../atoms/postsAtom.js";
+import userAtom from "../atoms/userAtom.js";
+import postsAtom from "../atoms/postsAtom.js";
 import usePreviewImg from "../hooks/usePreviewImg.js";
 import SuggestedUsers from "../components/SuggestedUsers.jsx";
 import { FaUserFriends } from "react-icons/fa"

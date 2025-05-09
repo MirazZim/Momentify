@@ -11,8 +11,8 @@ import { useRecoilState, useRecoilValue } from "recoil";
 import { DeleteIcon } from "@chakra-ui/icons";
 
 import Swal from "sweetalert2";
-import postsAtom from "../../atoms/postsAtom";
-import userAtom from "../../atoms/userAtom";
+import postsAtom from "../atoms/postsAtom";
+import userAtom from "../atoms/userAtom";
 
 const PostPage = () => {
 	const { user, loading } = useGetUserProfile();

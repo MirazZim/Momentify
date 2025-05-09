@@ -20,8 +20,8 @@ import usePreviewImg from "../hooks/usePreviewImg.js" // Custom hook to handle i
 import { useRef, useState } from "react"
 import useShowToast from "../hooks/useShowToast.js"
 import { useRecoilState, useRecoilValue } from "recoil"
-import userAtom from "../../atoms/userAtom.js"
-import postsAtom from "../../atoms/postsAtom.js"
+import userAtom from "../atoms/userAtom.js"
+import postsAtom from "../atoms/postsAtom.js"
 import { useParams } from "react-router-dom"
 
 const MAX_CHAR = 500; // Maximum characters allowed in the post text

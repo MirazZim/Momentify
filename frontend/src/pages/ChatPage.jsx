@@ -10,10 +10,10 @@ import Conversations from '../components/Conversations';
 import MessageContainer from '../components/MessageContainer';
 import useShowToast from '../hooks/useShowToast.js';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { conversationsAtom, selectedConversationAtom } from '../../atoms/messagesAtom.js';
+import { conversationsAtom, selectedConversationAtom } from '../atoms/messagesAtom.js';
 import { GiConversation } from 'react-icons/gi';
-import userAtom from '../../atoms/userAtom.js';
-import { useSocket } from '../../context/SocketContext.jsx';
+import userAtom from '../atoms/userAtom.js';
+import { useSocket } from '../context/SocketContext.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ChatPage = () => {

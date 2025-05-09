@@ -20,10 +20,10 @@ import {
 import { useRecoilValue } from "recoil";
 import { BsCheck2All, BsArrowLeft, BsArrowRight } from "react-icons/bs";
 import { useState } from "react";
-import { selectedConversationAtom } from "../../atoms/messagesAtom";
-import userAtom from "../../atoms/userAtom";
+import { selectedConversationAtom } from "../atoms/messagesAtom";
+import userAtom from "../atoms/userAtom";
 import { Smile } from "react-feather";
-import { useSocket } from "../../context/SocketContext";
+import { useSocket } from "../context/SocketContext";
 
 const Message = ({ ownMessage, message }) => {
   const selectedConversation = useRecoilValue(selectedConversationAtom);
