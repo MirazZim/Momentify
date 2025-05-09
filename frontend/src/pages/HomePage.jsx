@@ -141,7 +141,7 @@ const HomePage = () => {
                 <DrawerOverlay />
                 <DrawerContent>
                     <DrawerHeader borderBottomWidth="1px">
-                        Suggested Connections
+                        Suggested Connection
                     </DrawerHeader>
                     <DrawerBody>
                         <SuggestedUsers />
