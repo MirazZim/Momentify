@@ -13,6 +13,10 @@ const io = new Server(server, {
 	},
 });
 
+
+// Make io accessible to routes
+app.set('io', io);
+
 export const getRecipientSocketId = (recipientId) => {
     return userSocketMap[recipientId];
 };

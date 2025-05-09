@@ -138,56 +138,82 @@ async function addReaction(req, res) {
     try {
         const { messageId, emoji } = req.body;
         const userId = req.user._id;
+        
 
-        // Find the message
+        // Validation
+        if (!messageId || !emoji) {
+            return res.status(400).json({ 
+                error: "Missing required fields",
+                details: !messageId ? "messageId is required" : "emoji is required"
+            });
+        }
+
         const message = await Message.findById(messageId);
         if (!message) {
             return res.status(404).json({ error: "Message not found" });
         }
 
-        // Initialize reactions array if it doesn't exist
+        // Initialize reactions if not exists
         message.reactions = message.reactions || [];
 
-        // Check if the user already has any reaction
-        const userReactionIndex = message.reactions.findIndex(r => r.users.includes(userId));
+        // Find existing reaction from this user
+        const existingReactionIndex = message.reactions.findIndex(r => 
+            r.users.some(user => user.toString() === userId.toString())
+        );
 
-        if (userReactionIndex >= 0) {
-            // User already has a reaction, check if it's the same emoji (toggle off) or different (replace)
-            if (message.reactions[userReactionIndex].emoji === emoji) {
-                // Toggle off: remove the user's reaction
-                const userIndex = message.reactions[userReactionIndex].users.indexOf(userId);
-                message.reactions[userReactionIndex].users.splice(userIndex, 1);
-                if (message.reactions[userReactionIndex].users.length === 0) {
-                    message.reactions.splice(userReactionIndex, 1);
+        // Handle reaction update/removal
+        if (existingReactionIndex >= 0) {
+            const reaction = message.reactions[existingReactionIndex];
+            
+            if (reaction.emoji === emoji) {
+                // Remove user from reaction
+                reaction.users = reaction.users.filter(
+                    user => user.toString() !== userId.toString()
+                );
+                
+                // Remove reaction if empty
+                if (reaction.users.length === 0) {
+                    message.reactions.splice(existingReactionIndex, 1);
                 }
             } else {
-                // Replace existing reaction with new emoji
-                message.reactions[userReactionIndex].emoji = emoji;
-                message.reactions[userReactionIndex].users = [userId]; // Reset users to only the current user
+                // Change to new emoji
+                reaction.emoji = emoji;
+                reaction.users = [userId]; // Reset to only current user
             }
         } else {
-            // User has no reaction, add the new one
+            // Add new reaction
             message.reactions.push({ emoji, users: [userId] });
         }
 
-        // Save the updated message
         const updatedMessage = await message.save();
 
-        // Convert to plain object and ensure _id is string
-        const messageObject = updatedMessage.toObject();
-        messageObject._id = messageObject._id.toString();
+        // Prepare for socket emission
+        const messageForEmission = {
+            ...updatedMessage.toObject(),
+            _id: updatedMessage._id.toString(),
+            reactions: updatedMessage.reactions.map(r => ({
+                emoji: r.emoji,
+                users: r.users.map(u => u.toString())
+            }))
+        };
 
-        // Emit the updated message to all clients
+        // Emit update
         const io = req.app.get('io');
-        if (!io) {
-            throw new Error("Socket.io instance not available");
+        if (io) {
+            io.emit('messageReaction', messageForEmission);
         }
-        io.emit('messageReaction', messageObject);
 
-        res.status(200).json({ success: true, message: updatedMessage });
+        return res.status(200).json({ 
+            success: true, 
+            message: messageForEmission 
+        });
+
     } catch (error) {
         console.error("Error in addReaction:", error);
-        res.status(500).json({ error: error.message });
+        return res.status(500).json({ 
+            error: "Internal server error",
+            details: process.env.NODE_ENV === "development" ? error.stack : undefined
+        });
     }
 }
 export { sendMessage, getMessages, getConversations, addReaction };
