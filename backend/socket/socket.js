@@ -9,8 +9,7 @@ const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: [
-            process.env.CLIENT_URL, // Production URL
-            "http://localhost:3000" // Development URL
+            process.env.CLIENT_URL // Development URL
         ],
         methods: ["GET", "POST"],
         credentials: true
