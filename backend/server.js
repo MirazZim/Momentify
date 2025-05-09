@@ -6,15 +6,14 @@ import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import { v2 as cloudinary } from "cloudinary";
 import messageRoutes from "./routes/messageRoutes.js";
-// Import Express app and HTTP server with Socket.IO
-import {app, server, io} from "./socket/socket.js";
+import { app, server } from "./socket/socket.js";
+import path from "path";
 
-
-app.set('io', io);
 dotenv.config();
 connectDB();
 
 const PORT = process.env.PORT || 5000;
+const __dirname = path.resolve();
 
 
 cloudinary.config({
@@ -48,6 +47,15 @@ app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/messages", messageRoutes);
 
+
+
+// Production setup
+if (process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname, "/frontend/dist")));
+    app.get("*", (req, res) => {
+        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    });
+}
 
 // Start the server on the specified port
 server.listen(PORT, () => {
