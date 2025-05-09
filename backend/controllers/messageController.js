@@ -66,9 +66,9 @@ async function sendMessage(req, res) {
         const recipientSocketId = getRecipientSocketId(recipientId);
         //2. If the recipient is online, send the new message to their socket
         if (recipientSocketId) {
-        	//3. Send the new message to the recipient's socket
-        	io.to(recipientSocketId).emit("newMessage", newMessage);
-            
+            //3. Send the new message to the recipient's socket
+            io.to(recipientSocketId).emit("newMessage", newMessage);
+
         }
 
         res.status(201).json(newMessage);
@@ -109,29 +109,29 @@ async function getMessages(req, res) {
 }
 
 async function getConversations(req, res) {
-	// Get the conversations of the current user
-	const userId = req.user._id;
-	try {
-		// Find all conversations that the current user is a participant in
-		const conversations = await Conversation.find({ participants: userId }).populate({
-			path: "participants",
-			select: "username profilePic",
-		});
+    // Get the conversations of the current user
+    const userId = req.user._id;
+    try {
+        // Find all conversations that the current user is a participant in
+        const conversations = await Conversation.find({ participants: userId }).populate({
+            path: "participants",
+            select: "username profilePic",
+        });
 
-		// Remove the current user from the participants array
-		// So that the recipient is the only one left in the array
-		conversations.forEach((conversation) => {
-			conversation.participants = conversation.participants.filter(
-				(participant) => participant._id.toString() !== userId.toString()
-			);
-		});
+        // Remove the current user from the participants array
+        // So that the recipient is the only one left in the array
+        conversations.forEach((conversation) => {
+            conversation.participants = conversation.participants.filter(
+                (participant) => participant._id.toString() !== userId.toString()
+            );
+        });
 
-		// Return the conversations in the response
-		res.status(200).json(conversations);
-	} catch (error) {
-		// If there is an error, return a 500 status with the error message
-		res.status(500).json({ error: error.message });
-	}
+        // Return the conversations in the response
+        res.status(200).json(conversations);
+    } catch (error) {
+        // If there is an error, return a 500 status with the error message
+        res.status(500).json({ error: error.message });
+    }
 }
 
 async function addReaction(req, res) {
@@ -173,12 +173,16 @@ async function addReaction(req, res) {
         // Save the updated message
         const updatedMessage = await message.save();
 
+        // Convert to plain object and ensure _id is string
+        const messageObject = updatedMessage.toObject();
+        messageObject._id = messageObject._id.toString();
+
         // Emit the updated message to all clients
         const io = req.app.get('io');
         if (!io) {
             throw new Error("Socket.io instance not available");
         }
-        io.emit('messageReaction', updatedMessage);
+        io.emit('messageReaction', messageObject);
 
         res.status(200).json({ success: true, message: updatedMessage });
     } catch (error) {
