@@ -1,7 +1,7 @@
 # 📱 Momentify — Social Media Platform  
 🚀 Share moments, connect with friends, and express yourself in real-time.  
 
-Momentify is a modern, fully responsive social media web application built with the MERN stack. With a sleek UI powered by Chakra UI, real-time interactions via Socket.io, and secure JWT authentication, Momentify offers a seamless social experience.  
+Momentify is a modern, fully responsive social media web application built with the MERN stack. With a sleek UI powered by Chakra UI, real-time interactions via Socket.io, and secure JWT authentication, Momentify offers a seamless social experience with Modern UI.  
 
 ## 🌐 Live Demo  
 **Live Link:** [Momentify](https://momentify-0w7c.onrender.com/)  
